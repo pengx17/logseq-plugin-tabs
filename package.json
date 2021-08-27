@@ -1,5 +1,5 @@
 {
-  "name": "logseq-plugin-template-react",
+  "name": "logseq-plugin-tabs",
   "version": "0.0.1",
   "main": "dist/index.html",
   "scripts": {
@@ -24,7 +24,6 @@
     "windicss": "3.1.7"
   },
   "logseq": {
-    "id": "_pengx17-logseq-template-react",
-    "icon": "./logo.svg"
+    "id": "_pengx17-logseq-tabs"
   }
 }
