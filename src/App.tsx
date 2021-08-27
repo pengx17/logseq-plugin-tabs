@@ -84,7 +84,7 @@ function useActivePage() {
   return page;
 }
 
-function useAdpatMainUIStyle() {
+function useAdpatMainUIStyle(tabsWidth: number) {
   React.useEffect(() => {
     const listener = () => {
       const { bottom: topOffset, width } = top.document
@@ -92,17 +92,16 @@ function useAdpatMainUIStyle() {
         .getBoundingClientRect();
       logseq.setMainUIInlineStyle({
         top: `${topOffset}px`,
-        width: width + "px",
+        width: Math.min(width, tabsWidth) + "px",
       });
     };
     listener();
-
     const ob = new ResizeObserver(listener);
     ob.observe(top.document.querySelector("#left-container")!);
     return () => {
       ob.disconnect();
     };
-  }, []);
+  }, [tabsWidth]);
 }
 
 function isTabActive(p: any, t: ITabInfo) {
@@ -111,8 +110,11 @@ function isTabActive(p: any, t: ITabInfo) {
   }
   return (
     isEqual(p?.name, t.title) ||
+    isEqual(p?.name, t.ref) ||
     isEqual(p?.properties?.title, t.title) ||
-    p?.properties?.alias?.some((a: string) => isEqual(a, t.title) || isEqual(a, t.ref))
+    p?.properties?.alias?.some(
+      (a: string) => isEqual(a, t.title) || isEqual(a, t.ref)
+    )
   );
 }
 
@@ -123,18 +125,37 @@ function OpeningPageTabs({
   tabs: ITabInfo[];
   onCloseTab: (tab: ITabInfo) => void;
 }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [scrollWidth, setScrollWidth] = React.useState(
+    ref.current?.scrollWidth || 0
+  );
   const activePage = useActivePage();
-  useAdpatMainUIStyle();
+
+  React.useEffect(() => {
+    setScrollWidth(ref.current?.scrollWidth || 0);
+    const mo = new MutationObserver(() => {
+      setScrollWidth(ref.current?.scrollWidth || 0);
+    });
+    mo.observe(ref.current!, { childList: true });
+    return () => mo.disconnect();
+  }, []);
+
+  useAdpatMainUIStyle(scrollWidth);
+
   return (
-    <>
+    <div
+      ref={ref}
+      className="flex items-stretch h-full"
+      style={{ width: "fit-content" }}
+    >
       {tabs.map((tab) => (
         <div
-          onClick={() => logseq.App.pushState("page", { name: tab.title })}
+          onClick={() => logseq.App.pushState("page", { name: tab.ref })}
           key={tab.ref}
-          className={`mx-1px cursor-pointer font-sans text-sm h-full flex items-center px-2 ${
+          className={`mx-1px cursor-pointer font-sans text-sm h-full flex items-center px-2 hover:opacity-100 ${
             isTabActive(activePage, tab)
-              ? "border-b-2 border-blue-500 bg-white"
-              : "bg-cool-gray-100"
+              ? "border-b-2 border-blue-500 bg-cool-white-100"
+              : "bg-cool-gray-200 opacity-60"
           }`}
         >
           <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap">
@@ -142,13 +163,16 @@ function OpeningPageTabs({
           </span>
           <button
             className="hover:bg-gray-200 text-xs p-1 opacity-60 hover:opacity-100 ml-1"
-            onClick={() => onCloseTab(tab)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onCloseTab(tab);
+            }}
           >
             <CloseSVG />
           </button>
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -165,8 +189,8 @@ function App() {
 
   return (
     <main
-      style={{ height: "100vh" }}
-      className="h-full flex items-stretch bg-light-200 overflow-auto"
+      style={{ width: "100vw", height: "100vh" }}
+      className="bg-light-200 overflow-auto"
     >
       <OpeningPageTabs
         tabs={tabs}
