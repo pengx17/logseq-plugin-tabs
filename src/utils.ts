@@ -31,3 +31,23 @@ export const useSidebarVisible = () => {
   }, []);
   return visible;
 };
+
+export const useThemeMode = () => {
+  const isMounted = useMountedState();
+  const [mode, setMode] = React.useState<"dark" | "light">("light");
+  React.useEffect(() => {
+    setMode(
+      (top.document
+        .querySelector("html")
+        ?.getAttribute("data-theme") as typeof mode) ??
+        (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
+    );
+    return logseq.App.onThemeModeChanged((s) => {
+      if (isMounted()) {
+        setMode(s.mode);
+      }
+    });
+  }, [isMounted]);
+
+  return mode;
+};

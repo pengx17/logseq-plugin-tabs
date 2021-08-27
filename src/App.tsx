@@ -1,5 +1,6 @@
 import React from "react";
 import type { PageEntity, BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import { useThemeMode } from "./utils";
 
 interface ITabInfo {
   ref: string;
@@ -64,7 +65,7 @@ function useOpeningPageTabs() {
 }
 
 const CloseSVG = () => (
-  <svg height="1em" width="1em" viewBox="0 0 122.878 122.88">
+  <svg height="1em" width="1em" viewBox="0 0 122.878 122.88" fill="currentColor">
     <g>
       <path d="M1.426,8.313c-1.901-1.901-1.901-4.984,0-6.886c1.901-1.902,4.984-1.902,6.886,0l53.127,53.127l53.127-53.127 c1.901-1.902,4.984-1.902,6.887,0c1.901,1.901,1.901,4.985,0,6.886L68.324,61.439l53.128,53.128c1.901,1.901,1.901,4.984,0,6.886 c-1.902,1.902-4.985,1.902-6.887,0L61.438,68.326L8.312,121.453c-1.901,1.902-4.984,1.902-6.886,0 c-1.901-1.901-1.901-4.984,0-6.886l53.127-53.128L1.426,8.313L1.426,8.313z" />
     </g>
@@ -141,28 +142,41 @@ function OpeningPageTabs({
   }, []);
 
   useAdpatMainUIStyle(scrollWidth);
+  const themeMode = useThemeMode();
 
   return (
     <div
       ref={ref}
-      className="flex items-stretch h-full"
+      className={`flex items-stretch h-full`}
       style={{ width: "fit-content" }}
     >
       {tabs.map((tab) => (
         <div
           onClick={() => logseq.App.pushState("page", { name: tab.ref })}
           key={tab.ref}
-          className={`mx-1px cursor-pointer font-sans text-sm h-full flex items-center px-2 hover:opacity-100 ${
+          className={`
+          cursor-pointer font-sans
+          text-sm h-full flex items-center px-2 hover:opacity-100
+          ${themeMode === "light" ? "text-black" : "text-white"}
+          ${
             isTabActive(activePage, tab)
-              ? "border-b-2 border-blue-500 bg-cool-white-100"
-              : "bg-cool-gray-200 opacity-60"
+              ? `border-b-2 border-blue-500 ${
+                  themeMode === "light"
+                    ? "bg-white"
+                    : "bg-cool-gray-900"
+                }`
+              : `opacity-60 ${
+                  themeMode === "light"
+                    ? "bg-cool-gray-300"
+                    : "bg-cool-gray-600"
+                }`
           }`}
         >
           <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap">
             {tab.title}
           </span>
           <button
-            className="hover:bg-gray-200 text-xs p-1 opacity-60 hover:opacity-100 ml-1"
+            className="text-xs p-1 opacity-60 hover:opacity-100 ml-1"
             onClick={(e) => {
               e.stopPropagation();
               onCloseTab(tab);
@@ -188,10 +202,7 @@ function App() {
   }, [tabs]);
 
   return (
-    <main
-      style={{ width: "100vw", height: "100vh" }}
-      className="bg-light-200 overflow-auto"
-    >
+    <main style={{ width: "100vw", height: "100vh" }} className="overflow-auto">
       <OpeningPageTabs
         tabs={tabs}
         onCloseTab={(t) => setTabs(tabs.filter((ct) => ct.ref !== t.ref))}

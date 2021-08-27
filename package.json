@@ -4,7 +4,7 @@
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preinstall": "npx only-allow pnpm"
   },
   "license": "MIT",
