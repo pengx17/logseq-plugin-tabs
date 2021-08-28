@@ -53,7 +53,7 @@ export const useThemeMode = () => {
   return mode;
 };
 
-async function getSourcePage(pageName: string): Promise<PageEntity | null> {
+export async function getSourcePage(pageName: string): Promise<PageEntity | null> {
   const page = await logseq.Editor.getPage(pageName);
 
   // @ts-expect-error

@@ -52,12 +52,10 @@ function useActivePage() {
   const pageRef = React.useRef(page);
   async function setActivePage() {
     const p = await logseq.Editor.getCurrentPage();
-    if (p) {
-      // @ts-expect-error
-      const page = await logseq.Editor.getPage(p.name ?? p.page?.id);
-      setPage(page);
-      pageRef.current = page;
-    }
+    // @ts-expect-error
+    const page = await logseq.Editor.getPage(p?.name ?? p?.page?.id);
+    setPage(page);
+    pageRef.current = page;
   }
   React.useEffect(() => {
     return logseq.App.onRouteChanged(setActivePage);
@@ -86,9 +84,10 @@ function useAdpatMainUIStyle(tabsWidth: number) {
         .querySelector("#left-container .cp__header")!
         .getBoundingClientRect();
       logseq.setMainUIInlineStyle({
-        zIndex: 10,
+        zIndex: 9,
         top: `${topOffset}px`,
         width: Math.min(width, tabsWidth) + "px",
+        filter: "drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.2))",
       });
     };
     listener();
@@ -111,10 +110,12 @@ function OpeningPageTabs({
   activePage,
   tabs,
   onCloseTab,
+  onPinTab,
 }: {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
   onCloseTab: (tab: ITabInfo) => void;
+  onPinTab: (tab: ITabInfo) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [scrollWidth, setScrollWidth] = React.useState(
@@ -154,20 +155,22 @@ function OpeningPageTabs({
             onClick={() =>
               logseq.App.pushState("page", { name: tab.originalName })
             }
+            onDoubleClick={() => onPinTab(tab)}
             key={tab.uuid}
             data-active={isTabActive(activePage, tab)}
             className={`
-        cursor-pointer font-sans
-        text-sm h-full flex items-center pl-2 pr-1
+        cursor-pointer font-sans select-none
+        text-sm h-full flex items-center px-2
         light:text-black dark:text-white
-        border-l-1 border-l-light-100
+        border-l-1 light:border-l-light-100 dark:border-l-dark-100
+        ${tab.pined ? `` : "italic"}
         ${
           isActive
             ? `border-b-2 border-b-blue-500 light:bg-white dark:bg-cool-gray-900`
             : `light:bg-cool-gray-200 dark:bg-cool-gray-800`
         }`}
           >
-            <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap">
+            <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap center">
               {tab.originalName}
             </span>
             {tabs.length > 1 && (
@@ -211,8 +214,26 @@ function App() {
   };
 
   React.useEffect(() => {
-    if (activePage && tabs.every((t) => t.uuid !== activePage?.uuid)) {
-      setTabs([...tabs, activePage]);
+    if (activePage) {
+      setTabs((tabs) => {
+        if (tabs.every((t) => t.uuid !== activePage?.uuid)) {
+          let replaceIndex = tabs.findIndex(
+            (t) => t.uuid === activePage.uuid && !t.pined
+          );
+          if (replaceIndex === -1) {
+            replaceIndex = tabs.findIndex((t) => !t.pined);
+          }
+
+          if (replaceIndex === -1) {
+            return [...tabs, activePage];
+          } else {
+            const newTabs = [...tabs];
+            newTabs.splice(replaceIndex, 1, activePage);
+            return newTabs;
+          }
+        }
+        return tabs;
+      });
     }
   }, [activePage]);
 
@@ -224,6 +245,11 @@ function App() {
       <OpeningPageTabs
         activePage={activePage}
         tabs={tabs}
+        onPinTab={(t) => {
+          setTabs(
+            tabs.map((ct) => (ct.uuid === t.uuid ? { ...t, pined: true } : ct))
+          );
+        }}
         onCloseTab={onCloseTab}
       />
     </main>
