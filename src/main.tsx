@@ -9,8 +9,6 @@ import App from "./App";
 
 import { logseq as PL } from "../package.json";
 
-// @ts-expect-error
-const css = (t, ...args) => String.raw(t, ...args);
 const magicKey = `__${PL.id}__loaded__`;
 
 function main() {
@@ -27,14 +25,8 @@ function main() {
     zIndex: 0,
     position: "fixed",
     left: '0',
-    height: '36px'
+    height: '28px'
   });
-
-  logseq.provideStyle(css`
-    [data-active-keystroke*="Meta"] :is(.page-ref, .tag) {
-      cursor: n-resize;
-    }
-  `);
 
   // @ts-expect-error
   top[magicKey] = true;

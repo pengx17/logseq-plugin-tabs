@@ -1,0 +1,35 @@
+.logseq-tab {
+  @apply cursor-pointer font-sans select-none text-xs h-6 transition
+  flex items-center rounded mx-0.5
+    px-2 light:text-black dark:text-white;
+}
+
+.logseq-tab[data-active="false"] {
+  @apply light:(bg-cool-gray-100 text-gray-400)
+         dark:(bg-cool-gray-800 text-gray-400);
+}
+
+.logseq-tab[data-active="true"] {
+  @apply light:bg-cool-gray-300 dark:bg-cool-gray-900;
+}
+
+.logseq-tab-title {
+  @apply overflow-ellipsis max-w-40 px-1 overflow-hidden whitespace-nowrap inline;
+}
+
+.logseq-tab[data-active="false"] button:hover {
+  visibility: hidden;
+}
+
+.logseq-tab[data-active="false"]:hover button {
+  visibility: visible;
+}
+
+.logseq-tab .close-button {
+  @apply text-10px p-1 opacity-60 hover:opacity-100 ml-1 rounded;
+}
+
+.logseq-tab button:hover {
+  @apply light:(bg-cool-gray-400)
+         dark:(bg-cool-gray-600);
+}

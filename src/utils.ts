@@ -16,7 +16,7 @@ export const useAppVisible = () => {
     return () => {
       logseq.off(eventName, handler);
     };
-  }, []);
+  }, [isMounted]);
   return visible;
 };
 
@@ -29,7 +29,7 @@ export const useSidebarVisible = () => {
         setVisible(visible);
       }
     });
-  }, []);
+  }, [isMounted]);
   return visible;
 };
 
@@ -58,7 +58,7 @@ export async function getSourcePage(pageName: string): Promise<PageEntity | null
 
   // @ts-expect-error
   if (page && page.alias?.length > 0) {
-    let pages = await logseq.DB.datascriptQuery(`
+    const pages = await logseq.DB.datascriptQuery(`
       [:find (pull ?p [*])
       :where
       [?a :block/name "${page?.name}"]

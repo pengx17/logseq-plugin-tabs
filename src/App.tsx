@@ -1,6 +1,8 @@
 import React from "react";
-import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
-import { useThemeMode } from "./utils";
+import type { PageEntity, BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import { getSourcePage, useThemeMode } from "./utils";
+
+import "./App.css";
 
 import { version } from "../package.json";
 
@@ -15,7 +17,9 @@ const readFromLocalStorage = () => {
   if (str) {
     try {
       return JSON.parse(str);
-    } catch {}
+    } catch {
+      // no ops
+    }
   }
   return [];
 };
@@ -30,6 +34,10 @@ function useOpeningPageTabs() {
   React.useEffect(() => {
     persistToLocalStorage(tabs);
   }, [tabs]);
+
+  React.useEffect(() => {
+    return logseq.App.onCurrentGraphChanged(() => setTabs([]));
+  }, []);
 
   return [tabs, setTabs] as const;
 }
@@ -47,13 +55,17 @@ const CloseSVG = () => (
   </svg>
 );
 
+/**
+ * the active page is the page that is currently being viewed
+ */
 function useActivePage() {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
   const pageRef = React.useRef(page);
   async function setActivePage() {
     const p = await logseq.Editor.getCurrentPage();
-    // @ts-expect-error
-    const page = await logseq.Editor.getPage(p?.name ?? p?.page?.id);
+    const page = await logseq.Editor.getPage(
+      p?.name ?? (p as BlockEntity)?.page.id
+    );
     setPage(page);
     pageRef.current = page;
   }
@@ -80,15 +92,19 @@ function useActivePage() {
 function useAdpatMainUIStyle(tabsWidth: number) {
   React.useEffect(() => {
     const listener = () => {
-      const { bottom: topOffset, width } = top.document
-        .querySelector("#left-container .cp__header")!
-        .getBoundingClientRect();
-      logseq.setMainUIInlineStyle({
-        zIndex: 9,
-        top: `${topOffset}px`,
-        width: Math.min(width, tabsWidth) + "px",
-        filter: "drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.2))",
-      });
+      const leftHeader = top.document.querySelector(
+        "#left-container .cp__header"
+      );
+
+      if (leftHeader) {
+        const { bottom: topOffset, width } = leftHeader.getBoundingClientRect();
+        logseq.setMainUIInlineStyle({
+          zIndex: 9,
+          top: `${topOffset + 2}px`,
+          width: Math.min(width, tabsWidth) + "px",
+          transition: "width 0.2s",
+        });
+      }
     };
     listener();
     const ob = new ResizeObserver(listener);
@@ -99,13 +115,48 @@ function useAdpatMainUIStyle(tabsWidth: number) {
   }, [tabsWidth]);
 }
 
-function isTabActive(p: any, t: ITabInfo) {
+function isTabActive(tab: ITabInfo, activePage: ITabInfo | null) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
   }
-  return isEqual(p?.name, t.originalName) || isEqual(p?.name, t.name);
+  return Boolean(
+    activePage &&
+      (isEqual(tab.name, activePage?.originalName) ||
+        isEqual(tab.name, activePage.name))
+  );
 }
 
+function useAddPageTab(cb: (e: ITabInfo) => void) {
+  React.useEffect(() => {
+    const listener = async (e: MouseEvent) => {
+      const target = e.composedPath()[0] as HTMLAnchorElement;
+      // If CtrlKey is pressed, always open a new tab
+      const ctrlKey =
+        navigator.platform.toUpperCase().indexOf("MAC") >= 0
+          ? e.metaKey
+          : e.ctrlKey;
+      if (
+        target.tagName === "A" &&
+        target.hasAttribute("data-ref") &&
+        (target.className.includes("page-ref") ||
+          target.className.includes("tag")) &&
+        ctrlKey
+      ) {
+        e.stopPropagation();
+        const p = await getSourcePage(target.getAttribute("data-ref")!);
+        if (p) {
+          cb(p);
+        }
+      }
+    };
+    top.document.addEventListener("mousedown", listener, true);
+    return () => {
+      top.document.removeEventListener("mousedown", listener, true);
+    };
+  }, [cb]);
+}
+
+// TODO: DnD
 function OpeningPageTabs({
   activePage,
   tabs,
@@ -114,7 +165,7 @@ function OpeningPageTabs({
 }: {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
-  onCloseTab: (tab: ITabInfo) => void;
+  onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
   onPinTab: (tab: ITabInfo) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -126,7 +177,7 @@ function OpeningPageTabs({
     const mo = new MutationObserver(() => {
       setScrollWidth(ref.current?.scrollWidth || 0);
     });
-    mo.observe(ref.current!, { childList: true });
+    mo.observe(ref.current!, { childList: true, subtree: true });
     return () => mo.disconnect();
   }, []);
 
@@ -145,41 +196,32 @@ function OpeningPageTabs({
   return (
     <div
       ref={ref}
-      className={`flex items-stretch h-full`}
+      className={`flex items-center h-full px-1`}
       style={{ width: "fit-content" }}
     >
-      {tabs.map((tab) => {
-        const isActive = isTabActive(activePage, tab);
+      {tabs.map((tab, idx) => {
+        const isActive = isTabActive(tab, activePage);
+        const onClickTab = () =>
+          logseq.App.pushState("page", { name: tab.originalName });
+        const onClose: React.MouseEventHandler = (e) => {
+          e.stopPropagation();
+          onCloseTab(tab, idx);
+        };
         return (
           <div
-            onClick={() =>
-              logseq.App.pushState("page", { name: tab.originalName })
-            }
+            onClick={onClickTab}
             onDoubleClick={() => onPinTab(tab)}
             key={tab.uuid}
-            data-active={isTabActive(activePage, tab)}
-            className={`
-        cursor-pointer font-sans select-none
-        text-sm h-full flex items-center px-2
-        light:text-black dark:text-white
-        border-l-1 light:border-l-light-100 dark:border-l-dark-100
-        ${tab.pined ? `` : "italic"}
-        ${
-          isActive
-            ? `border-b-2 border-b-blue-500 light:bg-white dark:bg-cool-gray-900`
-            : `light:bg-cool-gray-200 dark:bg-cool-gray-800`
-        }`}
+            data-active={isActive}
+            className="logseq-tab"
           >
-            <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap center">
-              {tab.originalName}
-            </span>
-            {tabs.length > 1 && (
+            <span className="logseq-tab-title">{tab.originalName}</span>
+            {tab.pined ? (
+              <span>📌</span>
+            ) : (
               <button
-                className="text-xs p-1 opacity-60 hover:opacity-100 ml-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCloseTab(tab);
-                }}
+                className="close-button"
+                onClick={onClose}
               >
                 <CloseSVG />
               </button>
@@ -191,27 +233,43 @@ function OpeningPageTabs({
   );
 }
 
-function App() {
+function App(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
   const themeMode = useThemeMode();
   const activePage = useActivePage();
 
   React.useEffect(() => {
-    if (tabs.length > 0) {
+    if (tabs.length > 1 || !activePage) {
       logseq.showMainUI();
     } else {
       logseq.hideMainUI();
     }
-  }, [tabs]);
+  }, [activePage, tabs]);
 
-  const onCloseTab = (t: ITabInfo) => {
-    setTabs(tabs.filter((ct) => ct.uuid !== t.uuid));
-    if (t.uuid === activePage?.uuid) {
+  const onCloseTab = (tab: ITabInfo, idx: number) => {
+    const newTabs = [...tabs];
+    newTabs.splice(idx, 1);
+    setTabs(newTabs);
+    if (tab.uuid === activePage?.uuid) {
       logseq.App.pushState("page", {
-        name: tabs.find((t) => t.uuid !== activePage.uuid)?.name,
+        name: tabs.find((t) => t.uuid !== activePage?.uuid)?.name,
       });
     }
   };
+
+  const onNewTab = React.useCallback(
+    (t: ITabInfo | null) => {
+      setTabs((_tabs) => {
+        if (t && _tabs.every((_t) => _t.uuid !== t.uuid)) {
+          return [..._tabs, t];
+        }
+        return _tabs;
+      });
+    },
+    [setTabs]
+  );
+
+  useAddPageTab(onNewTab);
 
   React.useEffect(() => {
     if (activePage) {
@@ -235,7 +293,7 @@ function App() {
         return tabs;
       });
     }
-  }, [activePage]);
+  }, [activePage, setTabs]);
 
   return (
     <main
@@ -247,7 +305,9 @@ function App() {
         tabs={tabs}
         onPinTab={(t) => {
           setTabs(
-            tabs.map((ct) => (ct.uuid === t.uuid ? { ...t, pined: true } : ct))
+            tabs.map((ct) =>
+              ct.uuid === t.uuid ? { ...t, pined: !t.pined } : ct
+            )
           );
         }}
         onCloseTab={onCloseTab}
