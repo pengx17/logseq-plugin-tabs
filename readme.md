@@ -1,11 +1,13 @@
 # Logseq Plugin Tabs
 
-A plugin let's you to open pages in new tabs.
+A plugin that let's you to manage your working pages with tabs.
 
-<!-- UX is mainly brought from VSCode: whenever a new page is reached:
-- when there are no un-pinned tabs, a new tab is created
-- when there is un-pinned tabs, replace the un-pinned tab with the new one -->
+Note: the UX is not stable yet. You may find it change rapidly during different versions.
 
-UX is mainly brought from Chrome:
+UX is mainly brought from morden browsers:
+- normally, if a new page is visited, the current tab will be replaced by the new page
+- if you click a page link while holding CTRL(or CMD on Mac) key, a new tab will be created (not visied yet)
+- you can remove the tab by click the remove button in each tab
+- you can double-click a tab to pin it. A pined tab will not be replaced or be removed.
 
 ![](./demo.gif)
