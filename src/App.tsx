@@ -11,12 +11,13 @@ function useAddPageTab(cb: (e: ITabInfo) => void) {
   React.useEffect(() => {
     const listener = (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLAnchorElement;
+      const key = navigator.platform.toUpperCase().indexOf('MAC')>=0 ? e.metaKey : e.ctrlKey;
       if (
         target.tagName === "A" &&
         target.hasAttribute("data-ref") &&
         (target.className.includes("page-ref") ||
           target.className.includes("tag")) &&
-        e.metaKey
+        key
       ) {
         cb({
           ref: target.getAttribute("data-ref")!,
