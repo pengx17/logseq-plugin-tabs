@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.1.0...v1.2.0) (2021-08-28)
+
+
+### Features
+
+* align browser behaviors for ux ([ef31004](https://github.com/pengx17/logseq-plugin-tabs/commit/ef3100430d32c1cd6a847f57d78828b079709cf3))
+
 # [1.1.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.0.0...v1.1.0) (2021-08-28)
 
 
