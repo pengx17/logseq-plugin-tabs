@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import { useMountedState } from "react-use";
 
 export const useAppVisible = () => {
@@ -51,3 +52,29 @@ export const useThemeMode = () => {
 
   return mode;
 };
+
+async function getSourcePage(pageName: string): Promise<PageEntity | null> {
+  const page = await logseq.Editor.getPage(pageName);
+
+  // @ts-expect-error
+  if (page && page.alias?.length > 0) {
+    let pages = await logseq.DB.datascriptQuery(`
+      [:find (pull ?p [*])
+      :where
+      [?a :block/name "${page?.name}"]
+      [?p :block/alias ?a]]
+    `);
+
+    // @ts-expect-error
+    const source = pages.flat().find((candidate) =>
+      candidate.properties?.alias?.some(
+        // @ts-expect-error
+        (alias) => alias.toLowerCase() === page?.name
+      )
+    );
+    if (source) {
+      return await logseq.Editor.getPage(source.name);
+    }
+  }
+  return page;
+}

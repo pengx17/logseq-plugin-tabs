@@ -1,37 +1,14 @@
 import React from "react";
-import type { PageEntity, BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import { useThemeMode } from "./utils";
 
-interface ITabInfo {
-  ref: string;
-  title: string;
-}
+import { version } from "../package.json";
 
-function useAddPageTab(cb: (e: ITabInfo) => void) {
-  React.useEffect(() => {
-    const listener = (e: MouseEvent) => {
-      const target = e.composedPath()[0] as HTMLAnchorElement;
-      if (
-        target.tagName === "A" &&
-        target.hasAttribute("data-ref") &&
-        (target.className.includes("page-ref") ||
-          target.className.includes("tag")) &&
-        e.metaKey
-      ) {
-        cb({
-          ref: target.getAttribute("data-ref")!,
-          title: target.textContent!,
-        });
-      }
-    };
-    top.document.addEventListener("mousedown", listener, true);
-    return () => {
-      top.document.removeEventListener("mousedown", listener, true);
-    };
-  }, [cb]);
-}
+const KEY_ID = "logseq-opening-page-tabs:" + version;
 
-const KEY_ID = "logseq-opening-page-tabs";
+type ITabInfo = PageEntity & {
+  pined?: boolean;
+};
 
 const readFromLocalStorage = () => {
   const str = localStorage.getItem(KEY_ID);
@@ -50,13 +27,6 @@ const persistToLocalStorage = (tabs: ITabInfo[]) => {
 function useOpeningPageTabs() {
   const [tabs, setTabs] = React.useState<ITabInfo[]>(readFromLocalStorage());
 
-  useAddPageTab((tab) => {
-    if (tabs.some((ct) => ct.ref === tab.ref)) {
-      return;
-    }
-    setTabs((tabs) => [...tabs, tab]);
-  });
-
   React.useEffect(() => {
     persistToLocalStorage(tabs);
   }, [tabs]);
@@ -65,7 +35,12 @@ function useOpeningPageTabs() {
 }
 
 const CloseSVG = () => (
-  <svg height="1em" width="1em" viewBox="0 0 122.878 122.88" fill="currentColor">
+  <svg
+    height="1em"
+    width="1em"
+    viewBox="0 0 122.878 122.88"
+    fill="currentColor"
+  >
     <g>
       <path d="M1.426,8.313c-1.901-1.901-1.901-4.984,0-6.886c1.901-1.902,4.984-1.902,6.886,0l53.127,53.127l53.127-53.127 c1.901-1.902,4.984-1.902,6.887,0c1.901,1.901,1.901,4.985,0,6.886L68.324,61.439l53.128,53.128c1.901,1.901,1.901,4.984,0,6.886 c-1.902,1.902-4.985,1.902-6.887,0L61.438,68.326L8.312,121.453c-1.901,1.902-4.984,1.902-6.886,0 c-1.901-1.901-1.901-4.984,0-6.886l53.127-53.128L1.426,8.313L1.426,8.313z" />
     </g>
@@ -73,15 +48,34 @@ const CloseSVG = () => (
 );
 
 function useActivePage() {
-  const [page, setPage] = React.useState<null | PageEntity | BlockEntity>();
-  React.useEffect(() => {
-    async function setActivePage() {
-      const p = await logseq.Editor.getCurrentPage();
-      setPage(p);
+  const [page, setPage] = React.useState<null | ITabInfo>(null);
+  const pageRef = React.useRef(page);
+  async function setActivePage() {
+    const p = await logseq.Editor.getCurrentPage();
+    if (p) {
+      // @ts-expect-error
+      const page = await logseq.Editor.getPage(p.name ?? p.page?.id);
+      setPage(page);
+      pageRef.current = page;
     }
-    setActivePage();
+  }
+  React.useEffect(() => {
     return logseq.App.onRouteChanged(setActivePage);
   }, []);
+  React.useEffect(() => {
+    let t: number;
+    async function poll() {
+      if (!pageRef.current) {
+        await setActivePage();
+      }
+      t = setTimeout(poll, 100);
+    }
+    poll();
+    return () => {
+      clearTimeout(t);
+    };
+  }, [page]);
+
   return page;
 }
 
@@ -92,6 +86,7 @@ function useAdpatMainUIStyle(tabsWidth: number) {
         .querySelector("#left-container .cp__header")!
         .getBoundingClientRect();
       logseq.setMainUIInlineStyle({
+        zIndex: 10,
         top: `${topOffset}px`,
         width: Math.min(width, tabsWidth) + "px",
       });
@@ -109,29 +104,22 @@ function isTabActive(p: any, t: ITabInfo) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
   }
-  return (
-    isEqual(p?.name, t.title) ||
-    isEqual(p?.name, t.ref) ||
-    isEqual(p?.properties?.title, t.title) ||
-    p?.properties?.alias?.some(
-      (a: string) => isEqual(a, t.title) || isEqual(a, t.ref)
-    )
-  );
+  return isEqual(p?.name, t.originalName) || isEqual(p?.name, t.name);
 }
 
 function OpeningPageTabs({
+  activePage,
   tabs,
   onCloseTab,
 }: {
   tabs: ITabInfo[];
+  activePage: ITabInfo | null;
   onCloseTab: (tab: ITabInfo) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [scrollWidth, setScrollWidth] = React.useState(
     ref.current?.scrollWidth || 0
   );
-  const activePage = useActivePage();
-
   React.useEffect(() => {
     setScrollWidth(ref.current?.scrollWidth || 0);
     const mo = new MutationObserver(() => {
@@ -142,7 +130,16 @@ function OpeningPageTabs({
   }, []);
 
   useAdpatMainUIStyle(scrollWidth);
-  const themeMode = useThemeMode();
+
+  React.useEffect(() => {
+    if (activePage) {
+      setTimeout(() => {
+        ref.current
+          ?.querySelector(`[data-active]`)
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [activePage]);
 
   return (
     <div
@@ -150,48 +147,51 @@ function OpeningPageTabs({
       className={`flex items-stretch h-full`}
       style={{ width: "fit-content" }}
     >
-      {tabs.map((tab) => (
-        <div
-          onClick={() => logseq.App.pushState("page", { name: tab.ref })}
-          key={tab.ref}
-          className={`
-          cursor-pointer font-sans
-          text-sm h-full flex items-center px-2 hover:opacity-100
-          ${themeMode === "light" ? "text-black" : "text-white"}
-          ${
-            isTabActive(activePage, tab)
-              ? `border-b-2 border-blue-500 ${
-                  themeMode === "light"
-                    ? "bg-white"
-                    : "bg-cool-gray-900"
-                }`
-              : `opacity-60 ${
-                  themeMode === "light"
-                    ? "bg-cool-gray-300"
-                    : "bg-cool-gray-600"
-                }`
-          }`}
-        >
-          <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap">
-            {tab.title}
-          </span>
-          <button
-            className="text-xs p-1 opacity-60 hover:opacity-100 ml-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onCloseTab(tab);
-            }}
+      {tabs.map((tab) => {
+        const isActive = isTabActive(activePage, tab);
+        return (
+          <div
+            onClick={() =>
+              logseq.App.pushState("page", { name: tab.originalName })
+            }
+            key={tab.uuid}
+            data-active={isTabActive(activePage, tab)}
+            className={`
+        cursor-pointer font-sans
+        text-sm h-full flex items-center pl-2 pr-1
+        light:text-black dark:text-white
+        border-l-1 border-l-light-100
+        ${
+          isActive
+            ? `border-b-2 border-b-blue-500 light:bg-white dark:bg-cool-gray-900`
+            : `light:bg-cool-gray-200 dark:bg-cool-gray-800`
+        }`}
           >
-            <CloseSVG />
-          </button>
-        </div>
-      ))}
+            <span className="overflow-ellipsis max-w-40 min-w-20 overflow-hidden whitespace-nowrap">
+              {tab.originalName}
+            </span>
+            {tabs.length > 1 && (
+              <button
+                className="text-xs p-1 opacity-60 hover:opacity-100 ml-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCloseTab(tab);
+                }}
+              >
+                <CloseSVG />
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 function App() {
   const [tabs, setTabs] = useOpeningPageTabs();
+  const themeMode = useThemeMode();
+  const activePage = useActivePage();
 
   React.useEffect(() => {
     if (tabs.length > 0) {
@@ -201,11 +201,30 @@ function App() {
     }
   }, [tabs]);
 
+  const onCloseTab = (t: ITabInfo) => {
+    setTabs(tabs.filter((ct) => ct.uuid !== t.uuid));
+    if (t.uuid === activePage?.uuid) {
+      logseq.App.pushState("page", {
+        name: tabs.find((t) => t.uuid !== activePage.uuid)?.name,
+      });
+    }
+  };
+
+  React.useEffect(() => {
+    if (activePage && tabs.every((t) => t.uuid !== activePage?.uuid)) {
+      setTabs([...tabs, activePage]);
+    }
+  }, [activePage]);
+
   return (
-    <main style={{ width: "100vw", height: "100vh" }} className="overflow-auto">
+    <main
+      style={{ width: "100vw", height: "100vh" }}
+      className={`${themeMode}`}
+    >
       <OpeningPageTabs
+        activePage={activePage}
         tabs={tabs}
-        onCloseTab={(t) => setTabs(tabs.filter((ct) => ct.ref !== t.ref))}
+        onCloseTab={onCloseTab}
       />
     </main>
   );
