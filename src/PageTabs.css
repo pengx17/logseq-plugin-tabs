@@ -21,10 +21,6 @@
   @apply max-w-40;
 }
 
-.logseq-tab[data-active="false"][data-pined="true"] .logseq-tab-title {
-  @apply max-w-0 px-0;
-}
-
 .logseq-tab[data-active="false"] button:hover {
   visibility: hidden;
 }

@@ -23,14 +23,19 @@ const CloseSVG = () => (
   </svg>
 );
 
-function isTabActive(tab: ITabInfo, activePage: ITabInfo | null) {
+function isTabEqual(
+  tab: ITabInfo | null | undefined,
+  anotherTab: ITabInfo | null | undefined
+) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
   }
   return Boolean(
-    activePage &&
-      (isEqual(tab.name, activePage?.originalName) ||
-        isEqual(tab.name, activePage.name))
+    isEqual(tab?.originalName, anotherTab?.originalName) ||
+      isEqual(tab?.name, anotherTab?.name) ||
+      isEqual(tab?.uuid, anotherTab?.uuid) ||
+      // @ts-expect-error
+      tab?.alias?.includes(anotherTab?.id)
   );
 }
 
@@ -77,7 +82,7 @@ function Tabs({
       style={{ width: "fit-content" }}
     >
       {tabs.map((tab, idx) => {
-        const isActive = isTabActive(tab, activePage);
+        const isActive = isTabEqual(tab, activePage);
         const onClickTab = () =>
           logseq.App.pushState("page", { name: tab.originalName });
         const onClose: React.MouseEventHandler = (e) => {
@@ -189,8 +194,7 @@ export function PageTabs(): JSX.Element {
     const newTabs = [...tabs];
     newTabs.splice(idx, 1);
     setTabs(newTabs);
-    if (tab.uuid === activePage?.uuid) {
-      console.log("closing tab");
+    if (isTabEqual(tab, activePage)) {
       logseq.App.pushState("page", {
         name: newTabs[Math.min(newTabs.length - 1, idx)].originalName,
       });
@@ -199,10 +203,9 @@ export function PageTabs(): JSX.Element {
 
   const onNewTab = React.useCallback(
     (t: ITabInfo | null) => {
-      console.log("add");
       setTabs((_tabs) => {
         if (t) {
-          if (_tabs.every((_t) => _t.uuid !== t.uuid)) {
+          if (_tabs.every((_t) => !isTabEqual(t, _t))) {
             return [..._tabs, t];
           } else {
             // If it is already in the tab, just make it active
@@ -227,10 +230,10 @@ export function PageTabs(): JSX.Element {
       // if new active page is NOT in the tabs
       // - if current active page is pined, insert new tab at the end
       // - if there is no
-      if (tabs.every((t) => t.uuid !== activePage?.uuid)) {
+      if (tabs.every((t) => !isTabEqual(t, activePage))) {
         newTabs = [...tabs];
-        const currentIndex = tabs.findIndex(
-          (t) => t.uuid === prevActivePageRef.current?.uuid
+        const currentIndex = tabs.findIndex((t) =>
+          isTabEqual(t, prevActivePageRef.current)
         );
         const currentPinned = tabs[currentIndex]?.pined;
         if (currentIndex === -1 || currentPinned) {
@@ -249,7 +252,7 @@ export function PageTabs(): JSX.Element {
       setTabs((_tabs) =>
         sortTabs(
           _tabs.map((ct) =>
-            ct.uuid === t.uuid ? { ...t, pined: !t.pined } : ct
+            isTabEqual(t, ct) ? { ...t, pined: !t.pined } : ct
           )
         )
       );

@@ -114,7 +114,6 @@ export function useOpeningPageTabs() {
   return [tabs, setTabs] as const;
 }
 
-
 export function useAdpatMainUIStyle() {
   React.useEffect(() => {
     const listener = () => {
