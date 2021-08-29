@@ -210,7 +210,7 @@ export function PageTabs(): JSX.Element {
   useAdpatMainUIStyle();
 
   React.useEffect(() => {
-    if (tabs.length > 1 || !activePage) {
+    if (tabs.length > 1 || tabs.some(t => t.pined)) {
       logseq.showMainUI();
     } else {
       logseq.hideMainUI();
@@ -234,22 +234,19 @@ export function PageTabs(): JSX.Element {
     }
   });
 
-  const onNewTab = React.useCallback(
-    (t: ITabInfo | null) => {
-      setTabs((_tabs) => {
-        if (t) {
-          if (_tabs.every((_t) => !isTabEqual(t, _t))) {
-            return [..._tabs, t];
-          } else {
-            // If it is already in the tab, just make it active
-            logseq.App.pushState("page", { name: t.originalName });
-          }
+  const onNewTab = useEventCallback((t: ITabInfo | null) => {
+    setTabs((_tabs) => {
+      if (t) {
+        if (_tabs.every((_t) => !isTabEqual(t, _t))) {
+          return [..._tabs, t];
+        } else {
+          // If it is already in the tab, just make it active
+          logseq.App.pushState("page", { name: t.originalName });
         }
-        return _tabs;
-      });
-    },
-    [setTabs]
-  );
+      }
+      return _tabs;
+    });
+  });
 
   useAddPageTab(onNewTab);
 
@@ -277,18 +274,13 @@ export function PageTabs(): JSX.Element {
     setTabs(newTabs);
   }, [activePage, setTabs]);
 
-  const onPinTab = React.useCallback(
-    (t) => {
-      setTabs((_tabs) =>
-        sortTabs(
-          _tabs.map((ct) =>
-            isTabEqual(t, ct) ? { ...t, pined: !t.pined } : ct
-          )
-        )
-      );
-    },
-    [setTabs]
-  );
+  const onPinTab = useEventCallback((t) => {
+    setTabs((_tabs) =>
+      sortTabs(
+        _tabs.map((ct) => (isTabEqual(t, ct) ? { ...t, pined: !t.pined } : ct))
+      )
+    );
+  });
 
   const onSwapTab = (t0: ITabInfo, t1: ITabInfo) => {
     setTabs((_tabs) => {
@@ -304,8 +296,8 @@ export function PageTabs(): JSX.Element {
   React.useEffect(() => {
     const topKb = new keyboardjs.Keyboard(top);
     const currKb = new keyboardjs.Keyboard(window);
-    topKb.setLocale('us', us);
-    currKb.setLocale('us', us);
+    topKb.setLocale("us", us);
+    currKb.setLocale("us", us);
     const closeCurrentTab = (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
