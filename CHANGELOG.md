@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.0...v1.3.1) (2021-08-29)
+
+
+### Bug Fixes
+
+* show view if there is a single pined tab ([1b476d6](https://github.com/pengx17/logseq-plugin-tabs/commit/1b476d60b3902f2f2d790262dc0eb802d121c1f1))
+
 # [1.3.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.2.1...v1.3.0) (2021-08-29)
 
 
