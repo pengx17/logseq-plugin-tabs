@@ -14,7 +14,7 @@
 }
 
 .logseq-tab-title {
-  @apply overflow-ellipsis max-w-80 px-1 overflow-hidden whitespace-nowrap inline transition;
+  @apply overflow-ellipsis max-w-80 px-1 overflow-hidden whitespace-nowrap inline transition-all duration-200 ease-in-out;
 }
 
 .logseq-tab[data-active="false"] .logseq-tab-title {

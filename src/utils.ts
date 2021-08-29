@@ -127,7 +127,7 @@ export function useAdpatMainUIStyle() {
         logseq.setMainUIInlineStyle({
           zIndex: 9,
           top: `${topOffset + 2}px`,
-          width: Math.min(width) + "px",
+          width: (width - 10) + "px", // 10 is the width of the scrollbar
           transition: "width 0.2s",
         });
       }

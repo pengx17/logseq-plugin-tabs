@@ -1,13 +1,14 @@
 import type { BlockEntity } from "@logseq/libs/dist/LSPlugin";
 import React from "react";
+import { useDeepCompareEffect, useLatest } from "react-use";
+
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
   getSourcePage,
   useAdpatMainUIStyle,
-  useOpeningPageTabs
+  useOpeningPageTabs,
 } from "./utils";
-
 
 const CloseSVG = () => (
   <svg
@@ -22,20 +23,19 @@ const CloseSVG = () => (
   </svg>
 );
 
-
 function isTabActive(tab: ITabInfo, activePage: ITabInfo | null) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
   }
   return Boolean(
     activePage &&
-    (isEqual(tab.name, activePage?.originalName) ||
-      isEqual(tab.name, activePage.name))
+      (isEqual(tab.name, activePage?.originalName) ||
+        isEqual(tab.name, activePage.name))
   );
 }
 
 const sortTabs = (tabs: ITabInfo[]) => {
-  const newTabs = [...tabs]
+  const newTabs = [...tabs];
   newTabs.sort((a, b) => {
     if (a.pined && !b.pined) {
       return -1;
@@ -45,9 +45,8 @@ const sortTabs = (tabs: ITabInfo[]) => {
       return 0;
     }
   });
-  return newTabs
-}
-
+  return newTabs;
+};
 
 function Tabs({
   activePage,
@@ -87,7 +86,7 @@ function Tabs({
         };
         return (
           <div
-            onMouseDown={onClickTab}
+            onClick={onClickTab}
             onDoubleClick={() => onPinTab(tab)}
             key={tab.uuid}
             data-active={isActive}
@@ -139,11 +138,10 @@ function useAddPageTab(cb: (e: ITabInfo) => void) {
   }, [cb]);
 }
 
-
 /**
  * the active page is the page that is currently being viewed
  */
- export function useActivePage() {
+export function useActivePage() {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
   const pageRef = React.useRef(page);
   async function setActivePage() {
@@ -174,7 +172,6 @@ function useAddPageTab(cb: (e: ITabInfo) => void) {
   return page;
 }
 
-
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
   const activePage = useActivePage();
@@ -193,17 +190,24 @@ export function PageTabs(): JSX.Element {
     newTabs.splice(idx, 1);
     setTabs(newTabs);
     if (tab.uuid === activePage?.uuid) {
+      console.log("closing tab");
       logseq.App.pushState("page", {
-        name: tabs.find((t) => t.uuid !== activePage?.uuid)?.name,
+        name: newTabs[Math.min(newTabs.length - 1, idx)].originalName,
       });
     }
   };
 
   const onNewTab = React.useCallback(
     (t: ITabInfo | null) => {
+      console.log("add");
       setTabs((_tabs) => {
-        if (t && _tabs.every((_t) => _t.uuid !== t.uuid)) {
-          return [..._tabs, t];
+        if (t) {
+          if (_tabs.every((_t) => _t.uuid !== t.uuid)) {
+            return [..._tabs, t];
+          } else {
+            // If it is already in the tab, just make it active
+            logseq.App.pushState("page", { name: t.originalName });
+          }
         }
         return _tabs;
       });
@@ -213,28 +217,31 @@ export function PageTabs(): JSX.Element {
 
   useAddPageTab(onNewTab);
 
-  React.useEffect(() => {
-    if (activePage) {
-      setTabs((tabs) => {
-        if (tabs.every((t) => t.uuid !== activePage?.uuid)) {
-          let replaceIndex = tabs.findIndex(
-            (t) => t.uuid === activePage.uuid && !t.pined
-          );
-          if (replaceIndex === -1) {
-            replaceIndex = tabs.findIndex((t) => !t.pined);
-          }
+  const prevActivePageRef = React.useRef<ITabInfo | null>();
+  const latestTabsRef = useLatest(tabs);
 
-          if (replaceIndex === -1) {
-            return [...tabs, activePage];
-          } else {
-            const newTabs = [...tabs];
-            newTabs.splice(replaceIndex, 1, activePage);
-            return newTabs;
-          }
+  useDeepCompareEffect(() => {
+    let newTabs = latestTabsRef.current;
+    // If a new ActivePage is set, we will need to replace or insert the tab
+    if (activePage) {
+      // if new active page is NOT in the tabs
+      // - if current active page is pined, insert new tab at the end
+      // - if there is no
+      if (tabs.every((t) => t.uuid !== activePage?.uuid)) {
+        newTabs = [...tabs];
+        const currentIndex = tabs.findIndex(
+          (t) => t.uuid === prevActivePageRef.current?.uuid
+        );
+        const currentPinned = tabs[currentIndex]?.pined;
+        if (currentIndex === -1 || currentPinned) {
+          newTabs.push(activePage);
+        } else {
+          newTabs[currentIndex] = activePage;
         }
-        return tabs;
-      });
+      }
     }
+    prevActivePageRef.current = activePage;
+    setTabs(newTabs);
   }, [activePage, setTabs]);
 
   const onPinTab = React.useCallback(
