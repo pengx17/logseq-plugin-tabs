@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import { useMountedState } from "react-use";
 
+import { version } from "../package.json";
+import { ITabInfo } from "./types";
+
 export const useAppVisible = () => {
   const [visible, setVisible] = useState(logseq.isMainUIVisible);
   const isMounted = useMountedState();
   React.useEffect(() => {
     const eventName = "ui:visible:changed";
-    const handler = async ({ visible }: any) => {
+    const handler = async ({ visible }: { visible: boolean }) => {
       if (isMounted()) {
         setVisible(visible);
       }
@@ -41,7 +44,7 @@ export const useThemeMode = () => {
       (top.document
         .querySelector("html")
         ?.getAttribute("data-theme") as typeof mode) ??
-        (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
+      (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
     );
     return logseq.App.onThemeModeChanged((s) => {
       if (isMounted()) {
@@ -77,4 +80,63 @@ export async function getSourcePage(pageName: string): Promise<PageEntity | null
     }
   }
   return page;
+}
+
+const KEY_ID = "logseq-opening-page-tabs:" + version;
+
+const readFromLocalStorage = () => {
+  const str = localStorage.getItem(KEY_ID);
+  if (str) {
+    try {
+      return JSON.parse(str);
+    } catch {
+      // no ops
+    }
+  }
+  return [];
+};
+
+const persistToLocalStorage = (tabs: ITabInfo[]) => {
+  localStorage.setItem(KEY_ID, JSON.stringify(tabs));
+};
+
+export function useOpeningPageTabs() {
+  const [tabs, setTabs] = React.useState<ITabInfo[]>(readFromLocalStorage());
+
+  React.useEffect(() => {
+    persistToLocalStorage(tabs);
+  }, [tabs]);
+
+  React.useEffect(() => {
+    return logseq.App.onCurrentGraphChanged(() => setTabs([]));
+  }, []);
+
+  return [tabs, setTabs] as const;
+}
+
+
+export function useAdpatMainUIStyle() {
+  React.useEffect(() => {
+    const listener = () => {
+      const leftHeader = top.document.querySelector(
+        "#left-container .cp__header"
+      );
+
+      if (leftHeader) {
+        const { bottom: topOffset, width } = leftHeader.getBoundingClientRect();
+        logseq.setMainUIInlineStyle({
+          zIndex: 9,
+          top: `${topOffset + 2}px`,
+          width: Math.min(width) + "px",
+          transition: "width 0.2s",
+        });
+      }
+    };
+    listener();
+    const ob = new ResizeObserver(listener);
+    ob.observe(top.document.querySelector("#left-container")!);
+    return () => {
+      ob.disconnect();
+    };
+  }, []);
 }
