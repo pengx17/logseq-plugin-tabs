@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.2.1...v1.3.0) (2021-08-29)
+
+
+### Bug Fixes
+
+* do not hide label when pinned ([47013b4](https://github.com/pengx17/logseq-plugin-tabs/commit/47013b479284e18e3003662ccf9d6eda518ec0a9))
+
+
+### Features
+
+* allow drag & drop tabs ([94587b7](https://github.com/pengx17/logseq-plugin-tabs/commit/94587b73c36f4930af94dd8176e5bf16c4a47821))
+
 ## [1.2.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.2.0...v1.2.1) (2021-08-29)
 
 
