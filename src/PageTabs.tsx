@@ -1,12 +1,17 @@
 import type { BlockEntity } from "@logseq/libs/dist/LSPlugin";
+// @ts-expect-error no types
+import keyboardjs from "keyboardjs";
+// @ts-expect-error no types
+import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
-
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
   getSourcePage,
+  isMac,
   useAdpatMainUIStyle,
+  useEventCallback,
   useOpeningPageTabs,
 } from "./utils";
 
@@ -58,11 +63,13 @@ function Tabs({
   tabs,
   onCloseTab,
   onPinTab,
+  onSwapTab,
 }: {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
   onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
   onPinTab: (tab: ITabInfo) => void;
+  onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -74,6 +81,18 @@ function Tabs({
       }, 100);
     }
   }, [activePage]);
+
+  const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
+
+  React.useEffect(() => {
+    const dragEndListener = () => {
+      setDraggingTab(undefined);
+    };
+    document.addEventListener("dragend", dragEndListener);
+    return () => {
+      document.removeEventListener("dragend", dragEndListener);
+    };
+  }, []);
 
   return (
     <div
@@ -89,6 +108,13 @@ function Tabs({
           e.stopPropagation();
           onCloseTab(tab, idx);
         };
+        const onDragOver: React.DragEventHandler = (e) => {
+          if (draggingTab) {
+            // Prevent fly back animation
+            e.preventDefault();
+            onSwapTab(tab, draggingTab);
+          }
+        };
         return (
           <div
             onClick={onClickTab}
@@ -96,6 +122,10 @@ function Tabs({
             key={tab.uuid}
             data-active={isActive}
             data-pined={tab.pined}
+            data-dragging={draggingTab === tab}
+            draggable={true}
+            onDragOver={onDragOver}
+            onDragStart={() => setDraggingTab(tab)}
             className="logseq-tab"
           >
             <span className="logseq-tab-title">{tab.originalName}</span>
@@ -118,10 +148,7 @@ function useAddPageTab(cb: (e: ITabInfo) => void) {
     const listener = async (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLAnchorElement;
       // If CtrlKey is pressed, always open a new tab
-      const ctrlKey =
-        navigator.platform.toUpperCase().indexOf("MAC") >= 0
-          ? e.metaKey
-          : e.ctrlKey;
+      const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
       if (
         target.tagName === "A" &&
         target.hasAttribute("data-ref") &&
@@ -190,7 +217,13 @@ export function PageTabs(): JSX.Element {
     }
   }, [activePage, tabs]);
 
-  const onCloseTab = (tab: ITabInfo, idx: number) => {
+  const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
+    if (tabs.length <= 1) {
+      return;
+    }
+    if (idx == null) {
+      idx = tabs.findIndex((t) => isTabEqual(t, tab));
+    }
     const newTabs = [...tabs];
     newTabs.splice(idx, 1);
     setTabs(newTabs);
@@ -199,7 +232,7 @@ export function PageTabs(): JSX.Element {
         name: newTabs[Math.min(newTabs.length - 1, idx)].originalName,
       });
     }
-  };
+  });
 
   const onNewTab = React.useCallback(
     (t: ITabInfo | null) => {
@@ -220,20 +253,17 @@ export function PageTabs(): JSX.Element {
 
   useAddPageTab(onNewTab);
 
-  const prevActivePageRef = React.useRef<ITabInfo | null>();
+  const currActivePageRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
 
   useDeepCompareEffect(() => {
     let newTabs = latestTabsRef.current;
     // If a new ActivePage is set, we will need to replace or insert the tab
     if (activePage) {
-      // if new active page is NOT in the tabs
-      // - if current active page is pined, insert new tab at the end
-      // - if there is no
       if (tabs.every((t) => !isTabEqual(t, activePage))) {
         newTabs = [...tabs];
         const currentIndex = tabs.findIndex((t) =>
-          isTabEqual(t, prevActivePageRef.current)
+          isTabEqual(t, currActivePageRef.current)
         );
         const currentPinned = tabs[currentIndex]?.pined;
         if (currentIndex === -1 || currentPinned) {
@@ -243,7 +273,7 @@ export function PageTabs(): JSX.Element {
         }
       }
     }
-    prevActivePageRef.current = activePage;
+    currActivePageRef.current = activePage;
     setTabs(newTabs);
   }, [activePage, setTabs]);
 
@@ -260,10 +290,43 @@ export function PageTabs(): JSX.Element {
     [setTabs]
   );
 
+  const onSwapTab = (t0: ITabInfo, t1: ITabInfo) => {
+    setTabs((_tabs) => {
+      const newTabs = [..._tabs];
+      const i0 = _tabs.findIndex((t) => isTabEqual(t, t0));
+      const i1 = _tabs.findIndex((t) => isTabEqual(t, t1));
+      newTabs[i0] = t1;
+      newTabs[i1] = t0;
+      return sortTabs(newTabs);
+    });
+  };
+
+  React.useEffect(() => {
+    const topKb = new keyboardjs.Keyboard(top);
+    const currKb = new keyboardjs.Keyboard(window);
+    topKb.setLocale('us', us);
+    currKb.setLocale('us', us);
+    const closeCurrentTab = (e: Event) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (currActivePageRef.current) {
+        onCloseTab(currActivePageRef.current);
+      }
+    };
+    const ctrlW = isMac() ? "command + w" : "ctrl + w";
+    topKb.bind(ctrlW, closeCurrentTab);
+    currKb.bind(ctrlW, closeCurrentTab);
+    return () => {
+      topKb.unbind(ctrlW, closeCurrentTab);
+      currKb.unbind(ctrlW, closeCurrentTab);
+    };
+  }, [onCloseTab]);
+
   return (
     <Tabs
       activePage={activePage}
       tabs={tabs}
+      onSwapTab={onSwapTab}
       onPinTab={onPinTab}
       onCloseTab={onCloseTab}
     />

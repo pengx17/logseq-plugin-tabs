@@ -7,9 +7,9 @@ UX is mainly brought from morden browsers:
 - if you click a page link while holding CTRL(or CMD on Mac) key, a new tab will be created (not visied yet)
 - you can remove the tab by click the remove button in each tab
 - you can double-click a tab to pin it. A pined tab will not be replaced or be removed.
+- you can drag & drop to reorder tabs
 
 ## TODO
-- [ ] Drag and drop tabs
-- [ ] Transitions
+- [ ] keyboard shortcuts. Eg., CTRL+TAB to switch to next tab, CTRL+SHIFT+TAB to switch to previous tab, CTRL+W to close current tab
 
 ![](./demo.gif)

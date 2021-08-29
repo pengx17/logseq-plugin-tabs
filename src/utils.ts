@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import { useMountedState } from "react-use";
@@ -138,4 +139,22 @@ export function useAdpatMainUIStyle() {
       ob.disconnect();
     };
   }, []);
+}
+
+export const isMac = () => {
+  return navigator.platform.toUpperCase().includes("MAC");
+}
+
+export function useEventCallback<T extends (...args: any[]) => any>(fn: T): T {
+  const ref: any = React.useRef();
+
+  // we copy a ref to the callback scoped to the current state/props on each render
+  React.useLayoutEffect(() => {
+    ref.current = fn;
+  });
+
+  return React.useCallback(
+    (...args: any[]) => ref.current.apply(void 0, args),
+    []
+  ) as T;
 }

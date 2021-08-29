@@ -1,5 +1,5 @@
 .logseq-tab {
-  @apply cursor-pointer font-sans select-none text-xs h-6 transition
+  @apply cursor-pointer font-sans select-none text-xs h-6 transition-all
   flex items-center rounded mx-0.5
     px-2 light:text-black dark:text-white;
 }
@@ -11,6 +11,10 @@
 
 .logseq-tab[data-active="true"] {
   @apply light:bg-cool-gray-300 dark:bg-cool-gray-900;
+}
+
+.logseq-tab[data-dragging="true"] {
+  @apply ring-1 ring-red-500 mx-6;
 }
 
 .logseq-tab-title {
