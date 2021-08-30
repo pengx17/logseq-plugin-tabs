@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.2...v1.3.3) (2021-08-30)
+
+
+### Bug Fixes
+
+* tabs background may cover other elements ([16a0ac4](https://github.com/pengx17/logseq-plugin-tabs/commit/16a0ac40aaf537d11f3a9026b974d6a328503a3f))
+
 ## [1.3.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.1...v1.3.2) (2021-08-30)
 
 
