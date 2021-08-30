@@ -10,7 +10,7 @@ import { ITabInfo } from "./types";
 import {
   getSourcePage,
   isMac,
-  useAdpatMainUIStyle,
+  useAdaptMainUIStyle,
   useEventCallback,
   useOpeningPageTabs,
 } from "./utils";
@@ -47,9 +47,9 @@ function isTabEqual(
 const sortTabs = (tabs: ITabInfo[]) => {
   const newTabs = [...tabs];
   newTabs.sort((a, b) => {
-    if (a.pined && !b.pined) {
+    if (a.pinned && !b.pinned) {
       return -1;
-    } else if (!a.pined && b.pined) {
+    } else if (!a.pinned && b.pinned) {
       return 1;
     } else {
       return 0;
@@ -121,7 +121,7 @@ function Tabs({
             onDoubleClick={() => onPinTab(tab)}
             key={tab.uuid}
             data-active={isActive}
-            data-pined={tab.pined}
+            data-pinned={tab.pinned}
             data-dragging={draggingTab === tab}
             draggable={true}
             onDragOver={onDragOver}
@@ -129,7 +129,7 @@ function Tabs({
             className="logseq-tab"
           >
             <span className="logseq-tab-title">{tab.originalName}</span>
-            {tab.pined ? (
+            {tab.pinned ? (
               <span>📌</span>
             ) : (
               <button className="close-button" onClick={onClose}>
@@ -143,23 +143,31 @@ function Tabs({
   );
 }
 
-function useAddPageTab(cb: (e: ITabInfo) => void) {
+function isPageLink(element: HTMLElement) {
+  const el = element as HTMLAnchorElement;
+  return (
+    el.tagName === "A" &&
+    el.hasAttribute("data-ref") &&
+    (el.className.includes("page-ref") || el.className.includes("tag"))
+  );
+}
+
+/**
+ * Captures user CTRL Click a page link.
+ */
+function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
   React.useEffect(() => {
     const listener = async (e: MouseEvent) => {
-      const target = e.composedPath()[0] as HTMLAnchorElement;
+      const target = e.composedPath()[0] as HTMLElement;
       // If CtrlKey is pressed, always open a new tab
       const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
-      if (
-        target.tagName === "A" &&
-        target.hasAttribute("data-ref") &&
-        (target.className.includes("page-ref") ||
-          target.className.includes("tag")) &&
-        ctrlKey
-      ) {
+      if (isPageLink(target) && ctrlKey) {
         e.stopPropagation();
-        const p = await getSourcePage(target.getAttribute("data-ref")!);
+        const p = await getSourcePage(target.getAttribute("data-ref"));
         if (p) {
           cb(p);
+          // Preload Page for performance
+          await logseq.Editor.getPageBlocksTree(p.uuid);
         }
       }
     };
@@ -207,22 +215,23 @@ export function useActivePage() {
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
   const activePage = useActivePage();
-  useAdpatMainUIStyle();
+  useAdaptMainUIStyle();
 
   React.useEffect(() => {
-    if (tabs.length > 1 || tabs.some(t => t.pined)) {
+    if (tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned)) {
       logseq.showMainUI();
     } else {
       logseq.hideMainUI();
     }
-  }, [activePage, tabs]);
+  }, [tabs, activePage]);
 
   const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
-    if (tabs.length <= 1) {
-      return;
-    }
     if (idx == null) {
       idx = tabs.findIndex((t) => isTabEqual(t, tab));
+    }
+    // Do not close pinned
+    if (tabs[idx].pinned) {
+      return;
     }
     const newTabs = [...tabs];
     newTabs.splice(idx, 1);
@@ -248,7 +257,7 @@ export function PageTabs(): JSX.Element {
     });
   });
 
-  useAddPageTab(onNewTab);
+  useCaptureAddPageAction(onNewTab);
 
   const currActivePageRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
@@ -262,7 +271,7 @@ export function PageTabs(): JSX.Element {
         const currentIndex = tabs.findIndex((t) =>
           isTabEqual(t, currActivePageRef.current)
         );
-        const currentPinned = tabs[currentIndex]?.pined;
+        const currentPinned = tabs[currentIndex]?.pinned;
         if (currentIndex === -1 || currentPinned) {
           newTabs.push(activePage);
         } else {
@@ -274,11 +283,13 @@ export function PageTabs(): JSX.Element {
     setTabs(newTabs);
   }, [activePage, setTabs]);
 
+  React.useEffect(() => {
+    sortTabs(tabs);
+  }, [tabs]);
+
   const onPinTab = useEventCallback((t) => {
     setTabs((_tabs) =>
-      sortTabs(
-        _tabs.map((ct) => (isTabEqual(t, ct) ? { ...t, pined: !t.pined } : ct))
-      )
+      _tabs.map((ct) => (isTabEqual(t, ct) ? { ...t, pinned: !t.pinned } : ct))
     );
   });
 
@@ -289,10 +300,12 @@ export function PageTabs(): JSX.Element {
       const i1 = _tabs.findIndex((t) => isTabEqual(t, t1));
       newTabs[i0] = t1;
       newTabs[i1] = t0;
-      return sortTabs(newTabs);
+      return newTabs;
     });
   };
 
+  // Handle keyboard shortcuts.
+  // FIXME: not working properly
   React.useEffect(() => {
     const topKb = new keyboardjs.Keyboard(top);
     const currKb = new keyboardjs.Keyboard(window);

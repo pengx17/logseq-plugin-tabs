@@ -45,7 +45,7 @@ export const useThemeMode = () => {
       (top.document
         .querySelector("html")
         ?.getAttribute("data-theme") as typeof mode) ??
-      (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
+        (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
     );
     return logseq.App.onThemeModeChanged((s) => {
       if (isMounted()) {
@@ -57,7 +57,12 @@ export const useThemeMode = () => {
   return mode;
 };
 
-export async function getSourcePage(pageName: string): Promise<PageEntity | null> {
+export async function getSourcePage(
+  pageName?: string | null
+): Promise<PageEntity | null> {
+  if (!pageName) {
+    return null;
+  }
   const page = await logseq.Editor.getPage(pageName);
 
   // @ts-expect-error
@@ -115,7 +120,7 @@ export function useOpeningPageTabs() {
   return [tabs, setTabs] as const;
 }
 
-export function useAdpatMainUIStyle() {
+export function useAdaptMainUIStyle() {
   React.useEffect(() => {
     const listener = () => {
       const leftHeader = top.document.querySelector(
@@ -127,7 +132,7 @@ export function useAdpatMainUIStyle() {
         logseq.setMainUIInlineStyle({
           zIndex: 9,
           top: `${topOffset + 2}px`,
-          width: (width - 10) + "px", // 10 is the width of the scrollbar
+          width: width - 10 + "px", // 10 is the width of the scrollbar
           transition: "width 0.2s",
         });
       }
@@ -143,7 +148,7 @@ export function useAdpatMainUIStyle() {
 
 export const isMac = () => {
   return navigator.platform.toUpperCase().includes("MAC");
-}
+};
 
 export function useEventCallback<T extends (...args: any[]) => any>(fn: T): T {
   const ref: any = React.useRef();
