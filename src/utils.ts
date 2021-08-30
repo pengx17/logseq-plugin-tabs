@@ -165,7 +165,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
 }
 
 export const isMac = () => {
-  return navigator.platform.toUpperCase().includes("MAC");
+  return navigator.userAgent.includes("Mac");
 };
 
 export function useEventCallback<T extends (...args: any[]) => any>(fn: T): T {
