@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.3...v1.3.4) (2021-08-30)
+
+
+### Bug Fixes
+
+* sorting & animation ([381b2eb](https://github.com/pengx17/logseq-plugin-tabs/commit/381b2ebdbdc2722b6168d630987bcaaf4c474462))
+
 ## [1.3.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.2...v1.3.3) (2021-08-30)
 
 
