@@ -1,3 +1,11 @@
+## [1.3.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.1...v1.3.2) (2021-08-30)
+
+
+### Bug Fixes
+
+* animation fix ([7e4957f](https://github.com/pengx17/logseq-plugin-tabs/commit/7e4957f15e0dbab6f56c9013b51db35ab785962f))
+* optimize show/hide logic ([2e9a60d](https://github.com/pengx17/logseq-plugin-tabs/commit/2e9a60d5021a6e3296700218dfac232caea4834d))
+
 ## [1.3.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.0...v1.3.1) (2021-08-29)
 
 ### Bug Fixes
