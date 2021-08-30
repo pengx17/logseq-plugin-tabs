@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
-import { useMountedState } from "react-use";
+import { useDeepCompareEffect, useMountedState } from "react-use";
 
 import { version } from "../package.json";
 import { ITabInfo } from "./types";
@@ -102,6 +102,20 @@ const readFromLocalStorage = () => {
   return [];
 };
 
+const sortTabs = (tabs: ITabInfo[]) => {
+  const newTabs = [...tabs];
+  newTabs.sort((a, b) => {
+    if (a.pinned && !b.pinned) {
+      return -1;
+    } else if (!a.pinned && b.pinned) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+  return newTabs;
+};
+
 const persistToLocalStorage = (tabs: ITabInfo[]) => {
   localStorage.setItem(KEY_ID, JSON.stringify(tabs));
 };
@@ -109,8 +123,10 @@ const persistToLocalStorage = (tabs: ITabInfo[]) => {
 export function useOpeningPageTabs() {
   const [tabs, setTabs] = React.useState<ITabInfo[]>(readFromLocalStorage());
 
-  React.useEffect(() => {
-    persistToLocalStorage(tabs);
+  useDeepCompareEffect(() => {
+    const sorted = sortTabs(tabs);
+    setTabs(sorted);
+    persistToLocalStorage(sorted);
   }, [tabs]);
 
   React.useEffect(() => {

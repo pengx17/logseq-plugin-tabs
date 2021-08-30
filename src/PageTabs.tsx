@@ -46,20 +46,6 @@ function isTabEqual(
   );
 }
 
-const sortTabs = (tabs: ITabInfo[]) => {
-  const newTabs = [...tabs];
-  newTabs.sort((a, b) => {
-    if (a.pinned && !b.pinned) {
-      return -1;
-    } else if (!a.pinned && b.pinned) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-  return newTabs;
-};
-
 interface TabsProps {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
@@ -217,7 +203,10 @@ export function PageTabs(): JSX.Element {
     const newTabs = [...tabs];
     newTabs.splice(idx, 1);
     setTabs(newTabs);
-    if (isTabEqual(tab, activePage)) {
+
+    if (newTabs.length === 0) {
+      logseq.App.pushState("home");
+    } else if (isTabEqual(tab, activePage)) {
       logseq.App.pushState("page", {
         name: newTabs[Math.min(newTabs.length - 1, idx)].originalName,
       });
@@ -262,11 +251,7 @@ export function PageTabs(): JSX.Element {
     }
     currActivePageRef.current = activePage;
     setTabs(newTabs);
-  }, [activePage, setTabs]);
-
-  useDeepCompareEffect(() => {
-    setTabs(sortTabs(tabs));
-  }, [tabs]);
+  }, [activePage ?? {}]);
 
   const onPinTab = useEventCallback((t) => {
     setTabs((_tabs) =>
@@ -311,10 +296,7 @@ export function PageTabs(): JSX.Element {
   const ref = React.useRef<HTMLElement>(null);
   const scrollWidth = useScrollWidth(ref);
 
-  useAdaptMainUIStyle(
-    tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned),
-    scrollWidth
-  );
+  useAdaptMainUIStyle(tabs.length > 0, scrollWidth);
 
   React.useEffect(() => {
     if (activePage && ref) {
