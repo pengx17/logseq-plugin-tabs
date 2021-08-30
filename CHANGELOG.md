@@ -1,3 +1,10 @@
+## [1.3.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.4...v1.3.5) (2021-08-30)
+
+
+### Bug Fixes
+
+* show tabs more aggresively ([5f1392e](https://github.com/pengx17/logseq-plugin-tabs/commit/5f1392ed7bca336f3ad96e8fb88cffcb18fd6717))
+
 ## [1.3.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.3...v1.3.4) (2021-08-30)
 
 
