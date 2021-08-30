@@ -14,6 +14,7 @@ import {
   useAdaptMainUIStyle,
   useEventCallback,
   useOpeningPageTabs,
+  useScrollWidth,
 } from "./utils";
 
 const CloseSVG = () => (
@@ -59,90 +60,78 @@ const sortTabs = (tabs: ITabInfo[]) => {
   return newTabs;
 };
 
-function Tabs({
-  activePage,
-  tabs,
-  onCloseTab,
-  onPinTab,
-  onSwapTab,
-}: {
+interface TabsProps {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
   onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
   onPinTab: (tab: ITabInfo) => void;
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
-}) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    if (activePage) {
-      setTimeout(() => {
-        ref.current
-          ?.querySelector(`[data-active]`)
-          ?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    }
-  }, [activePage]);
-
-  const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
-
-  React.useEffect(() => {
-    const dragEndListener = () => {
-      setDraggingTab(undefined);
-    };
-    document.addEventListener("dragend", dragEndListener);
-    return () => {
-      document.removeEventListener("dragend", dragEndListener);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className={`flex items-center h-full px-1`}
-      style={{ width: "fit-content" }}
-    >
-      {tabs.map((tab, idx) => {
-        const isActive = isTabEqual(tab, activePage);
-        const onClickTab = () =>
-          logseq.App.pushState("page", { name: tab.originalName });
-        const onClose: React.MouseEventHandler = (e) => {
-          e.stopPropagation();
-          onCloseTab(tab, idx);
-        };
-        const onDragOver: React.DragEventHandler = (e) => {
-          if (draggingTab) {
-            // Prevent drag fly back animation
-            e.preventDefault();
-            onSwapTab(tab, draggingTab);
-          }
-        };
-        return (
-          <div
-            onClick={onClickTab}
-            onDoubleClick={() => onPinTab(tab)}
-            key={tab.uuid}
-            data-active={isActive}
-            data-pinned={tab.pinned}
-            data-dragging={draggingTab === tab}
-            draggable={true}
-            onDragOver={onDragOver}
-            onDragStart={() => setDraggingTab(tab)}
-            className="logseq-tab"
-          >
-            <span className="logseq-tab-title">{tab.originalName}</span>
-            {tab.pinned ? (
-              <span>📌</span>
-            ) : (
-              <button className="close-button" onClick={onClose}>
-                <CloseSVG />
-              </button>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
 }
+
+const Tabs = React.forwardRef<HTMLElement, TabsProps>(
+  ({ activePage, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
+    const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
+
+    React.useEffect(() => {
+      const dragEndListener = () => {
+        setDraggingTab(undefined);
+      };
+      document.addEventListener("dragend", dragEndListener);
+      return () => {
+        document.removeEventListener("dragend", dragEndListener);
+      };
+    }, []);
+
+    return (
+      <div
+        // @ts-expect-error ???
+        ref={ref}
+        className={`flex items-center h-full px-1`}
+        style={{ width: "fit-content" }}
+      >
+        {tabs.map((tab, idx) => {
+          const isActive = isTabEqual(tab, activePage);
+          const onClickTab = () =>
+            logseq.App.pushState("page", { name: tab.originalName });
+          const onClose: React.MouseEventHandler = (e) => {
+            e.stopPropagation();
+            onCloseTab(tab, idx);
+          };
+          const onDragOver: React.DragEventHandler = (e) => {
+            if (draggingTab) {
+              // Prevent drag fly back animation
+              e.preventDefault();
+              onSwapTab(tab, draggingTab);
+            }
+          };
+          return (
+            <div
+              onClick={onClickTab}
+              onDoubleClick={() => onPinTab(tab)}
+              key={tab.uuid}
+              data-active={isActive}
+              data-pinned={tab.pinned}
+              data-dragging={draggingTab === tab}
+              draggable={true}
+              onDragOver={onDragOver}
+              onDragStart={() => setDraggingTab(tab)}
+              className="logseq-tab"
+            >
+              <span className="logseq-tab-title">{tab.originalName}</span>
+              {tab.pinned ? (
+                <span>📌</span>
+              ) : (
+                <button className="close-button" onClick={onClose}>
+                  <CloseSVG />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+);
 
 function isPageLink(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
@@ -172,9 +161,9 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
         }
       }
     };
-    top.document.addEventListener("mousedown", listener, true);
+    top!.document.addEventListener("mousedown", listener, true);
     return () => {
-      top.document.removeEventListener("mousedown", listener, true);
+      top!.document.removeEventListener("mousedown", listener, true);
     };
   }, [cb]);
 }
@@ -216,10 +205,6 @@ export function useActivePage() {
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
   const activePage = useActivePage();
-
-  useAdaptMainUIStyle(
-    tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned)
-  );
 
   const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
     if (idx == null) {
@@ -323,8 +308,27 @@ export function PageTabs(): JSX.Element {
     };
   }, [onCloseTab]);
 
+  const ref = React.useRef<HTMLElement>(null);
+  const scrollWidth = useScrollWidth(ref);
+
+  useAdaptMainUIStyle(
+    tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned),
+    scrollWidth
+  );
+
+  React.useEffect(() => {
+    if (activePage && ref) {
+      setTimeout(() => {
+        ref.current
+          ?.querySelector(`[data-active]`)
+          ?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [activePage, ref]);
+
   return (
     <Tabs
+      ref={ref}
       activePage={activePage}
       tabs={tabs}
       onSwapTab={onSwapTab}

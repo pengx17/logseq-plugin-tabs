@@ -33,7 +33,7 @@ function main() {
 
 // @ts-expect-error
 if (top[magicKey]) {
-  top.location.reload();
+  top!.location.reload();
 }
 
 logseq.ready(main).catch(console.error);

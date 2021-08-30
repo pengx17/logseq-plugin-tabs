@@ -12,7 +12,7 @@ specifiers:
   '@vitejs/plugin-react-refresh': 1.3.6
   conventional-changelog-conventionalcommits: 4.6.0
   eslint: ^7.32.0
-  eslint-plugin-react: ^7.24.0
+  eslint-plugin-react: ^7.25.1
   eslint-plugin-react-hooks: ^4.2.0
   keyboardjs: ^2.6.4
   react: ^17.0.2
@@ -42,7 +42,7 @@ devDependencies:
   '@vitejs/plugin-react-refresh': 1.3.6
   conventional-changelog-conventionalcommits: 4.6.0
   eslint: 7.32.0
-  eslint-plugin-react: 7.24.0_eslint@7.32.0
+  eslint-plugin-react: 7.25.1_eslint@7.32.0
   typescript: 4.4.2
   vite: 2.5.1
   vite-plugin-windicss: 1.3.0_typescript@4.4.2+vite@2.5.1
@@ -778,7 +778,7 @@ packages:
     dependencies:
       caniuse-lite: 1.0.30001252
       colorette: 1.3.0
-      electron-to-chromium: 1.3.820
+      electron-to-chromium: 1.3.822
       escalade: 3.1.1
       node-releases: 1.1.75
     dev: true
@@ -1015,8 +1015,8 @@ packages:
       is-obj: 2.0.0
     dev: true
 
-  /electron-to-chromium/1.3.820:
-    resolution: {integrity: sha512-5cFwDmo2yzEA9hn55KZ9+cX/b6DSFvpKz8Hb2fiDmriXWB+DBoXKXmncQwNRFBBTlUdsvPHCoy594OoMLAO0Tg==}
+  /electron-to-chromium/1.3.822:
+    resolution: {integrity: sha512-k7jG5oYYHxF4jx6PcqwHX3JVME/OjzolqOZiIogi9xtsfsmTjTdie4x88OakYFPEa8euciTgCCzvVNwvmjHb1Q==}
     dev: true
 
   /emoji-regex/8.0.0:
@@ -1080,8 +1080,8 @@ packages:
       is-symbol: 1.0.4
     dev: true
 
-  /esbuild/0.12.23:
-    resolution: {integrity: sha512-qvS4aKnmKikoWGscd5lVAzgobMovlH/JhaWitRiQ8xJx0x1Fym0pqVjMFs43Nvff8WpibeWm+fWoLK88T1U0Xw==}
+  /esbuild/0.12.24:
+    resolution: {integrity: sha512-C0ibY+HsXzYB6L/pLWEiWjMpghKsIc58Q5yumARwBQsHl9DXPakW+5NI/Y9w4YXiz0PEP6XTGTT/OV4Nnsmb4A==}
     hasBin: true
     requiresBuild: true
     dev: true
@@ -1110,8 +1110,8 @@ packages:
       eslint: 7.32.0
     dev: false
 
-  /eslint-plugin-react/7.24.0_eslint@7.32.0:
-    resolution: {integrity: sha512-KJJIx2SYx7PBx3ONe/mEeMz4YE0Lcr7feJTCMyyKb/341NcjuAgim3Acgan89GfPv7nxXK2+0slu0CWXYM4x+Q==}
+  /eslint-plugin-react/7.25.1_eslint@7.32.0:
+    resolution: {integrity: sha512-P4j9K1dHoFXxDNP05AtixcJEvIT6ht8FhYKsrkY0MPCPaUMYijhpWwNiRDZVtA8KFuZOkGSeft6QwH8KuVpJug==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7
@@ -1120,6 +1120,7 @@ packages:
       array.prototype.flatmap: 1.2.4
       doctrine: 2.1.0
       eslint: 7.32.0
+      estraverse: 5.2.0
       has: 1.0.3
       jsx-ast-utils: 3.2.0
       minimatch: 3.0.4
@@ -1432,6 +1433,17 @@ packages:
 
   /glob/7.1.6:
     resolution: {integrity: sha512-LwaxwyZ72Lk7vZINtNNrywX0ZuLyStrdDtabefZKAY5ZGJhVtgdznluResxNmPitE0SAO+O26sWTHeKSI2wMBA==}
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 3.0.4
+      once: 1.4.0
+      path-is-absolute: 1.0.1
+    dev: true
+
+  /glob/7.1.7:
+    resolution: {integrity: sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==}
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -1916,7 +1928,7 @@ packages:
       inline-style-prefixer: 6.0.0
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      rtl-css-js: 1.14.1
+      rtl-css-js: 1.14.2
       sourcemap-codec: 1.4.8
       stacktrace-js: 2.0.2
       stylis: 4.0.10
@@ -2422,7 +2434,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.6
+      glob: 7.1.7
     dev: true
 
   /rollup/2.56.3:
@@ -2433,8 +2445,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /rtl-css-js/1.14.1:
-    resolution: {integrity: sha512-G9N1s/6329FpJr8k9e1U/Lg0IDWThv99sb7k0IrXHjSnubxe01h52/ajsPRafJK1/2Vqrhz3VKLe3E1dx6jS9Q==}
+  /rtl-css-js/1.14.2:
+    resolution: {integrity: sha512-t6Wc/wpqm8s3kuXAV6tL/T7VS6n0XszzX58CgCsLj3O2xi9ITSLfzYhtl+GKyxCi/3QEqVctOJQwCiDzb2vteQ==}
     dependencies:
       '@babel/runtime': 7.15.3
     dev: false
@@ -2792,7 +2804,7 @@ packages:
       chalk: 4.1.2
       chokidar: 3.5.2
       debug: 4.3.2
-      esbuild: 0.12.23
+      esbuild: 0.12.24
       execa: 5.1.1
       globby: 11.0.4
       joycon: 3.0.1
@@ -2910,7 +2922,7 @@ packages:
     engines: {node: '>=12.2.0'}
     hasBin: true
     dependencies:
-      esbuild: 0.12.23
+      esbuild: 0.12.24
       postcss: 8.3.6
       resolve: 1.20.0
       rollup: 2.56.3

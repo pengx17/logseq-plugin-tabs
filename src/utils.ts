@@ -42,7 +42,7 @@ export const useThemeMode = () => {
   const [mode, setMode] = React.useState<"dark" | "light">("light");
   React.useEffect(() => {
     setMode(
-      (top.document
+      (top!.document
         .querySelector("html")
         ?.getAttribute("data-theme") as typeof mode) ??
         (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
@@ -120,11 +120,11 @@ export function useOpeningPageTabs() {
   return [tabs, setTabs] as const;
 }
 
-export function useAdaptMainUIStyle(show: boolean) {
+export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
   React.useEffect(() => {
     logseq.showMainUI(); // always on
     const listener = () => {
-      const leftHeader = top.document.querySelector(
+      const leftHeader = top!.document.querySelector(
         "#left-container .cp__header"
       );
 
@@ -134,18 +134,18 @@ export function useAdaptMainUIStyle(show: boolean) {
           zIndex: 9,
           top: `${topOffset + 2}px`,
           height: show ? "28px" : "0px",
-          width: width - 10 + "px", // 10 is the width of the scrollbar
+          width: Math.min(tabsWidth ?? 9999, width - 10) + "px", // 10 is the width of the scrollbar
           transition: "width 0.2s, height 0.2s",
         });
       }
     };
     listener();
     const ob = new ResizeObserver(listener);
-    ob.observe(top.document.querySelector("#left-container")!);
+    ob.observe(top!.document.querySelector("#left-container")!);
     return () => {
       ob.disconnect();
     };
-  }, [show]);
+  }, [show, tabsWidth]);
 }
 
 export const isMac = () => {
@@ -165,3 +165,24 @@ export function useEventCallback<T extends (...args: any[]) => any>(fn: T): T {
     []
   ) as T;
 }
+
+export const useScrollWidth = <T extends HTMLElement>(
+  ref: React.RefObject<T>
+) => {
+  const [scrollWidth, setScrollWidth] = React.useState<number>();
+  React.useEffect(() => {
+    const mo = new MutationObserver(() => {
+      setScrollWidth(ref.current?.scrollWidth || 0);
+    });
+    if (ref.current) {
+      setScrollWidth(ref.current.scrollWidth || 0);
+      mo.observe(ref.current, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    }
+    return () => mo.disconnect();
+  }, [ref]);
+  return scrollWidth;
+};
