@@ -1,3 +1,10 @@
+## [1.3.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.5...v1.3.6) (2021-08-30)
+
+
+### Bug Fixes
+
+* do not use deprecated navigator.platform field ([0670d3e](https://github.com/pengx17/logseq-plugin-tabs/commit/0670d3e5d34115758e6ee5f903c0f9d270647d43))
+
 ## [1.3.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.4...v1.3.5) (2021-08-30)
 
 
