@@ -264,8 +264,8 @@ export function PageTabs(): JSX.Element {
     setTabs(newTabs);
   }, [activePage, setTabs]);
 
-  React.useEffect(() => {
-    sortTabs(tabs);
+  useDeepCompareEffect(() => {
+    setTabs(sortTabs(tabs));
   }, [tabs]);
 
   const onPinTab = useEventCallback((t) => {

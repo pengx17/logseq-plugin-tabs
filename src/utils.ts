@@ -172,7 +172,14 @@ export const useScrollWidth = <T extends HTMLElement>(
   const [scrollWidth, setScrollWidth] = React.useState<number>();
   React.useEffect(() => {
     const mo = new MutationObserver(() => {
+      // Run multiple times to take animation into account, hacky...
       setScrollWidth(ref.current?.scrollWidth || 0);
+      setTimeout(() => {
+        setScrollWidth(ref.current?.scrollWidth || 0);
+      }, 100);
+      setTimeout(() => {
+        setScrollWidth(ref.current?.scrollWidth || 0);
+      }, 200);
     });
     if (ref.current) {
       setScrollWidth(ref.current.scrollWidth || 0);
