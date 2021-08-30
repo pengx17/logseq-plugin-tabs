@@ -5,6 +5,7 @@ import keyboardjs from "keyboardjs";
 import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
+
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
@@ -110,7 +111,7 @@ function Tabs({
         };
         const onDragOver: React.DragEventHandler = (e) => {
           if (draggingTab) {
-            // Prevent fly back animation
+            // Prevent drag fly back animation
             e.preventDefault();
             onSwapTab(tab, draggingTab);
           }
@@ -215,15 +216,10 @@ export function useActivePage() {
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
   const activePage = useActivePage();
-  useAdaptMainUIStyle();
 
-  React.useEffect(() => {
-    if (tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned)) {
-      logseq.showMainUI();
-    } else {
-      logseq.hideMainUI();
-    }
-  }, [tabs, activePage]);
+  useAdaptMainUIStyle(
+    tabs.length > (activePage ? 1 : 0) || tabs.some((t) => t.pinned)
+  );
 
   const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
     if (idx == null) {

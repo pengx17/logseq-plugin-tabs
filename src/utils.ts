@@ -120,8 +120,9 @@ export function useOpeningPageTabs() {
   return [tabs, setTabs] as const;
 }
 
-export function useAdaptMainUIStyle() {
+export function useAdaptMainUIStyle(show: boolean) {
   React.useEffect(() => {
+    logseq.showMainUI(); // always on
     const listener = () => {
       const leftHeader = top.document.querySelector(
         "#left-container .cp__header"
@@ -132,8 +133,9 @@ export function useAdaptMainUIStyle() {
         logseq.setMainUIInlineStyle({
           zIndex: 9,
           top: `${topOffset + 2}px`,
+          height: show ? "28px" : "0px",
           width: width - 10 + "px", // 10 is the width of the scrollbar
-          transition: "width 0.2s",
+          transition: "width 0.2s, height 0.2s",
         });
       }
     };
@@ -143,7 +145,7 @@ export function useAdaptMainUIStyle() {
     return () => {
       ob.disconnect();
     };
-  }, []);
+  }, [show]);
 }
 
 export const isMac = () => {

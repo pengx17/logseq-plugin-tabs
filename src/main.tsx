@@ -1,7 +1,7 @@
 import "@logseq/libs";
 import "virtual:windi.css";
 
-import './reset.css';
+import "./reset.css";
 
 import React from "react";
 import ReactDOM from "react-dom";
@@ -24,8 +24,7 @@ function main() {
   logseq.setMainUIInlineStyle({
     zIndex: 0,
     position: "fixed",
-    left: '0',
-    height: '28px'
+    left: "0",
   });
 
   // @ts-expect-error
