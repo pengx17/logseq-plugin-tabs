@@ -164,11 +164,14 @@ export function useActivePage(tabs: ITabInfo[]) {
   const pageRef = React.useRef(page);
   const setActivePage = useEventCallback(async () => {
     const p = await logseq.Editor.getCurrentPage();
+    let tab: ITabInfo | null = null;
     if (p) {
-      const tab =
-        tabs.find((t) => isTabEqual(t, p)) ??
-        (await logseq.Editor.getPage(p.name ?? (p as BlockEntity)?.page.id));
-      setPage(tab);
+      tab = tabs.find((t) => isTabEqual(t, p)) ?? null;
+      if (!tab) {
+        tab = await logseq.Editor.getPage(
+          p.name ?? (p as BlockEntity)?.page.id
+        );
+      }
       // @ts-expect-error
       if (tab.scrollTop) {
         // @ts-expect-error
@@ -176,6 +179,7 @@ export function useActivePage(tabs: ITabInfo[]) {
       }
       pageRef.current = tab;
     }
+    setPage(tab);
   });
   React.useEffect(() => {
     return logseq.App.onRouteChanged(setActivePage);
@@ -341,8 +345,10 @@ export function PageTabs(): JSX.Element {
         const idx = draft.findIndex((ct) =>
           isTabEqual(ct, currActivePageRef.current)
         );
-        draft[idx].scrollTop =
-          top?.document.querySelector("#main-container")?.scrollTop;
+        if (idx !== -1) {
+          draft[idx].scrollTop =
+            top?.document.querySelector("#main-container")?.scrollTop;
+        }
       })
     );
     setActivePage(t);
