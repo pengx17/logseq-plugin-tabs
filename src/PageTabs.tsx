@@ -161,20 +161,21 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
  */
 export function useActivePage(tabs: ITabInfo[]) {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
+  const pageRef = React.useRef(page);
   const setActivePage = useEventCallback(async () => {
     const p = await logseq.Editor.getCurrentPage();
     if (p) {
-      const tab = tabs.find((t) => isTabEqual(t, p));
-      if (tab) {
-        mainContainerScroll({
-          top: tab.scrollTop,
-        });
+      const tab =
+        tabs.find((t) => isTabEqual(t, p)) ??
+        (await logseq.Editor.getPage(p.name ?? (p as BlockEntity)?.page.id));
+      setPage(tab);
+      // @ts-expect-error
+      if (tab.scrollTop) {
+        // @ts-expect-error
+        mainContainerScroll({ top: tab.scrollTop });
       }
+      pageRef.current = tab;
     }
-    const page = await logseq.Editor.getPage(
-      p?.name ?? (p as BlockEntity)?.page.id
-    );
-    setPage(page);
   });
   React.useEffect(() => {
     return logseq.App.onRouteChanged(setActivePage);
@@ -183,26 +184,38 @@ export function useActivePage(tabs: ITabInfo[]) {
     let stopped = false;
     async function poll() {
       await delay(1500);
-      if (!page && !stopped) {
+      if (!pageRef.current && !stopped) {
         await setActivePage();
-        poll();
+        await poll();
       }
     }
     poll();
     return () => {
       stopped = true;
     };
-  }, [page, setActivePage]);
+  }, [setActivePage]);
 
   const tab = React.useMemo(() => {
     if (page) {
-      return tabs.find((t) => isTabEqual(t, page));
+      return tabs.find((t) => isTabEqual(t, page)) ?? page;
     }
     return page;
   }, [page, tabs]);
 
   return [tab, setPage] as const;
 }
+
+const sortTabs = (tabs: ITabInfo[]) => {
+  tabs.sort((a, b) => {
+    if (a.pinned && !b.pinned) {
+      return -1;
+    } else if (!a.pinned && b.pinned) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+};
 
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
@@ -278,6 +291,7 @@ export function PageTabs(): JSX.Element {
       produce(tabs, (draft) => {
         const idx = draft.findIndex((ct) => isTabEqual(ct, t));
         draft[idx].pinned = !draft[idx].pinned;
+        sortTabs(draft);
       })
     );
   });
@@ -289,6 +303,7 @@ export function PageTabs(): JSX.Element {
         const i1 = draft.findIndex((t) => isTabEqual(t, t1));
         draft[i0] = t1;
         draft[i1] = t0;
+        sortTabs(draft);
       })
     );
   };

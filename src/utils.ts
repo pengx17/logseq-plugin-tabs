@@ -105,20 +105,6 @@ const readFromLocalStorage = () => {
   return [];
 };
 
-const sortTabs = (tabs: ITabInfo[]) => {
-  const newTabs = [...tabs];
-  newTabs.sort((a, b) => {
-    if (a.pinned && !b.pinned) {
-      return -1;
-    } else if (!a.pinned && b.pinned) {
-      return 1;
-    } else {
-      return 0;
-    }
-  });
-  return newTabs;
-};
-
 const persistToLocalStorage = (tabs: ITabInfo[]) => {
   localStorage.setItem(KEY_ID, JSON.stringify(tabs));
 };
@@ -127,9 +113,7 @@ export function useOpeningPageTabs() {
   const [tabs, setTabs] = React.useState<ITabInfo[]>(readFromLocalStorage());
 
   useDeepCompareEffect(() => {
-    const sorted = sortTabs(tabs);
-    setTabs(sorted);
-    persistToLocalStorage(sorted);
+    persistToLocalStorage(tabs);
   }, [tabs]);
 
   React.useEffect(() => {
