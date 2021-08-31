@@ -1,3 +1,10 @@
+## [1.3.8](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.7...v1.3.8) (2021-08-31)
+
+
+### Bug Fixes
+
+* fix polling issue ([191573c](https://github.com/pengx17/logseq-plugin-tabs/commit/191573ca680a3c34710bd11c2db4e3ca85c14e55))
+
 ## [1.3.7](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.6...v1.3.7) (2021-08-31)
 
 
