@@ -130,7 +130,6 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
       const leftHeader = top!.document.querySelector(
         "#left-container .cp__header"
       );
-
       if (leftHeader) {
         const {
           bottom: topOffset,
@@ -206,4 +205,8 @@ export const useScrollWidth = <T extends HTMLElement>(
 
 export const mainContainerScroll = (scrollOptions: ScrollToOptions) => {
   top?.document.querySelector("#main-container")?.scrollTo(scrollOptions);
+};
+
+export const isBlock = (t: ITabInfo) => {
+  return Boolean(t.page);
 };

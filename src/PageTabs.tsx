@@ -11,6 +11,7 @@ import { ITabInfo } from "./types";
 import {
   delay,
   getSourcePage,
+  isBlock,
   isMac,
   mainContainerScroll,
   useAdaptMainUIStyle,
@@ -33,11 +34,14 @@ const CloseSVG = () => (
 );
 
 function isTabEqual(
-  tab: Partial<ITabInfo> | null | undefined,
-  anotherTab: Partial<ITabInfo> | null | undefined
+  tab: ITabInfo | null | undefined,
+  anotherTab: ITabInfo | null | undefined
 ) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
+  }
+  if (tab?.page || anotherTab?.page) {
+    return isEqual(tab?.uuid, anotherTab?.uuid);
   }
   return Boolean(
     isEqual(tab?.originalName, anotherTab?.originalName) ||
@@ -57,6 +61,8 @@ interface TabsProps {
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }
 
+// TODO: transition animations
+// ref: https://codesandbox.io/s/lucid-mendel-n7i98?file=/src/App.js
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
   ({ activePage, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
@@ -80,7 +86,6 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       >
         {tabs.map((tab, idx) => {
           const isActive = isTabEqual(tab, activePage);
-
           const onClose: React.MouseEventHandler = (e) => {
             e.stopPropagation();
             onCloseTab(tab, idx);
@@ -105,7 +110,11 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               onDragStart={() => setDraggingTab(tab)}
               className="logseq-tab"
             >
-              <span className="logseq-tab-title">{tab.originalName}</span>
+              <span className="logseq-tab-title">
+                {tab.originalName}{" "}
+                {isBlock(tab) &&
+                  `/ ${tab.uuid?.substring(tab.uuid.length - 12)}`}
+              </span>
               {tab.pinned ? (
                 <span>📌</span>
               ) : (
@@ -121,12 +130,19 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
   }
 );
 
-function isPageLink(element: HTMLElement) {
+function isPageRef(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
   return (
     el.tagName === "A" &&
     el.hasAttribute("data-ref") &&
     (el.className.includes("page-ref") || el.className.includes("tag"))
+  );
+}
+
+function getBlockUUID(element: HTMLElement) {
+  return (
+    element.getAttribute("blockid") ??
+    element.querySelector("[blockid]")?.getAttribute("blockid")
   );
 }
 
@@ -139,13 +155,30 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
       const target = e.composedPath()[0] as HTMLElement;
       // If CtrlKey is pressed, always open a new tab
       const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
-      if (isPageLink(target) && ctrlKey) {
-        e.stopPropagation();
-        const p = await getSourcePage(target.getAttribute("data-ref"));
-        if (p) {
-          cb(p);
-          // Preload Page for performance
-          await logseq.Editor.getPageBlocksTree(p.uuid);
+
+      if (ctrlKey) {
+        if (isPageRef(target)) {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          const p = await getSourcePage(target.getAttribute("data-ref"));
+          if (p) {
+            cb(p);
+            // Preload Page for performance
+            await logseq.Editor.getPageBlocksTree(p.uuid);
+          }
+        } else if (getBlockUUID(target)) {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          const blockId = getBlockUUID(target);
+          if (blockId) {
+            const block = await logseq.Editor.getBlock(blockId);
+            if (block) {
+              const page = await logseq.Editor.getPage(block?.page.id);
+              if (page) {
+                cb({ ...page, ...block });
+              }
+            }
+          }
         }
       }
     };
@@ -171,10 +204,9 @@ export function useActivePage(tabs: ITabInfo[]) {
         tab = await logseq.Editor.getPage(
           p.name ?? (p as BlockEntity)?.page.id
         );
+        tab = { ...tab, ...p };
       }
-      // @ts-expect-error
       if (tab.scrollTop) {
-        // @ts-expect-error
         mainContainerScroll({ top: tab.scrollTop });
       }
       pageRef.current = tab;
@@ -278,7 +310,9 @@ export function PageTabs(): JSX.Element {
         });
       }
       timer = setTimeout(() => {
-        logseq.App.pushState("page", { name: activePage.originalName });
+        logseq.App.pushState("page", {
+          name: isBlock(activePage) ? activePage.uuid : activePage.originalName,
+        });
       }, 200);
     }
     currActivePageRef.current = activePage;
@@ -338,20 +372,22 @@ export function PageTabs(): JSX.Element {
   const ref = React.useRef<HTMLElement>(null);
   const scrollWidth = useScrollWidth(ref);
 
-  const onClickTab = useEventCallback((t: ITabInfo) => {
-    // remember current page's scroll position
-    setTabs(
-      produce(tabs, (draft) => {
-        const idx = draft.findIndex((ct) =>
-          isTabEqual(ct, currActivePageRef.current)
-        );
-        if (idx !== -1) {
-          draft[idx].scrollTop =
-            top?.document.querySelector("#main-container")?.scrollTop;
-        }
-      })
-    );
+  const onClickTab = useEventCallback(async (t: ITabInfo) => {
     setActivePage(t);
+    // remember current page's scroll position
+    const idx = tabs.findIndex((ct) =>
+      isTabEqual(ct, currActivePageRef.current)
+    );
+    if (idx !== -1) {
+      const scrollTop =
+        top?.document.querySelector("#main-container")?.scrollTop;
+
+      setTabs(
+        produce(tabs, (draft) => {
+          draft[idx].scrollTop = scrollTop;
+        })
+      );
+    }
   });
 
   useAdaptMainUIStyle(tabs.length > 0, scrollWidth);

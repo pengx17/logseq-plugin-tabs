@@ -1,6 +1,13 @@
-import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
+export interface ITabInfo {
+  // Main attributes from page/block
+  uuid?: string;
+  name?: string;
+  originalName?: string;
+  page?: {
+    id: number;
+  };
 
-export type ITabInfo = PageEntity & {
+  // UI States:
   pinned?: boolean;
   scrollTop?: number;
-};
+}
