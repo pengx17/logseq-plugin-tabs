@@ -21,12 +21,6 @@ function main() {
     document.getElementById("app")
   );
 
-  logseq.setMainUIInlineStyle({
-    zIndex: 0,
-    position: "fixed",
-    left: "0",
-  });
-
   // @ts-expect-error
   top[magicKey] = true;
 }

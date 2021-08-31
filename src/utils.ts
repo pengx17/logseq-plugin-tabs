@@ -148,6 +148,9 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
         const { bottom: topOffset, width } = leftHeader.getBoundingClientRect();
         logseq.setMainUIInlineStyle({
           zIndex: 9,
+          userSelect: "none",
+          position: "fixed",
+          left: "0",
           top: `${topOffset + 2}px`,
           height: show ? "28px" : "0px",
           width: Math.min(tabsWidth ?? 9999, width - 10) + "px", // 10 is the width of the scrollbar

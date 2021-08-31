@@ -5,7 +5,6 @@ import keyboardjs from "keyboardjs";
 import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
-
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
@@ -49,13 +48,14 @@ function isTabEqual(
 interface TabsProps {
   tabs: ITabInfo[];
   activePage: ITabInfo | null;
+  onClickTab: (tab: ITabInfo) => void;
   onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
   onPinTab: (tab: ITabInfo) => void;
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }
 
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
-  ({ activePage, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
+  ({ activePage, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
 
     React.useEffect(() => {
@@ -77,8 +77,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       >
         {tabs.map((tab, idx) => {
           const isActive = isTabEqual(tab, activePage);
-          const onClickTab = () =>
-            logseq.App.pushState("page", { name: tab.originalName });
+
           const onClose: React.MouseEventHandler = (e) => {
             e.stopPropagation();
             onCloseTab(tab, idx);
@@ -92,7 +91,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
           };
           return (
             <div
-              onClick={onClickTab}
+              onClick={() => onClickTab(tab)}
               onDoubleClick={() => onPinTab(tab)}
               key={tab.uuid}
               data-active={isActive}
@@ -185,12 +184,12 @@ export function useActivePage() {
     };
   }, [page]);
 
-  return page;
+  return [page, setPage] as const;
 }
 
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
-  const activePage = useActivePage();
+  const [activePage, setActivePage] = useActivePage();
 
   const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
     if (idx == null) {
@@ -207,9 +206,8 @@ export function PageTabs(): JSX.Element {
     if (newTabs.length === 0) {
       logseq.App.pushState("home");
     } else if (isTabEqual(tab, activePage)) {
-      logseq.App.pushState("page", {
-        name: newTabs[Math.min(newTabs.length - 1, idx)].originalName,
-      });
+      const newTab = newTabs[Math.min(newTabs.length - 1, idx)];
+      setActivePage(newTab);
     }
   });
 
@@ -220,7 +218,7 @@ export function PageTabs(): JSX.Element {
           return [..._tabs, t];
         } else {
           // If it is already in the tab, just make it active
-          logseq.App.pushState("page", { name: t.originalName });
+          setActivePage(t);
         }
       }
       return _tabs;
@@ -233,6 +231,7 @@ export function PageTabs(): JSX.Element {
   const latestTabsRef = useLatest(tabs);
 
   useDeepCompareEffect(() => {
+    let timer = 0;
     let newTabs = latestTabsRef.current;
     // If a new ActivePage is set, we will need to replace or insert the tab
     if (activePage) {
@@ -248,9 +247,18 @@ export function PageTabs(): JSX.Element {
           newTabs[currentIndex] = activePage;
         }
       }
+
+      timer = setTimeout(() => {
+        logseq.App.pushState("page", { name: activePage.originalName });
+      }, 200);
     }
     currActivePageRef.current = activePage;
     setTabs(newTabs);
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [activePage ?? {}]);
 
   const onPinTab = useEventCallback((t) => {
@@ -296,6 +304,10 @@ export function PageTabs(): JSX.Element {
   const ref = React.useRef<HTMLElement>(null);
   const scrollWidth = useScrollWidth(ref);
 
+  const onClickTab = useEventCallback((t: ITabInfo) => {
+    setActivePage(t);
+  });
+
   useAdaptMainUIStyle(tabs.length > 0, scrollWidth);
 
   React.useEffect(() => {
@@ -311,6 +323,7 @@ export function PageTabs(): JSX.Element {
   return (
     <Tabs
       ref={ref}
+      onClickTab={onClickTab}
       activePage={activePage}
       tabs={tabs}
       onSwapTab={onSwapTab}

@@ -1,5 +1,5 @@
 .logseq-tab {
-  @apply cursor-pointer font-sans select-none text-xs h-6 transition-all
+  @apply cursor-pointer font-sans select-none text-xs h-6 transition-all duration-100
   flex items-center rounded mx-0.5
     px-2 light:text-black dark:text-white;
 }
@@ -18,7 +18,7 @@
 }
 
 .logseq-tab-title {
-  @apply overflow-ellipsis max-w-80 px-1 overflow-hidden whitespace-nowrap inline transition-all duration-200 ease-in-out;
+  @apply overflow-ellipsis max-w-80 px-1 overflow-hidden whitespace-nowrap inline transition-all duration-100 ease-in-out;
 }
 
 .logseq-tab[data-active="false"] .logseq-tab-title {
