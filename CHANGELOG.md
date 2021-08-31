@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.0...v1.4.1) (2021-08-31)
+
+
+### Bug Fixes
+
+* sorted not working after using immer ([2cb184e](https://github.com/pengx17/logseq-plugin-tabs/commit/2cb184eb65c1b96500679495a3165f6630fd0672))
+
 # [1.4.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.8...v1.4.0) (2021-08-31)
 
 
