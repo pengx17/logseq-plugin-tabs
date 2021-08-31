@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.3...v1.5.0) (2021-08-31)
+
+
+### Features
+
+* support opening block refs ([ccf3c7e](https://github.com/pengx17/logseq-plugin-tabs/commit/ccf3c7e5295aee97f9e3706e629ffb50d82f5bd6))
+
 ## [1.4.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.2...v1.4.3) (2021-08-31)
 
 
