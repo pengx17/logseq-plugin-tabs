@@ -215,3 +215,7 @@ export const useScrollWidth = <T extends HTMLElement>(
   }, [ref]);
   return scrollWidth;
 };
+
+export const mainContainerScroll = (scrollOptions: ScrollToOptions) => {
+  top?.document.querySelector("#main-container")?.scrollTo(scrollOptions);
+};

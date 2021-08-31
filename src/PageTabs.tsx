@@ -5,12 +5,14 @@ import keyboardjs from "keyboardjs";
 import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
+import produce from "immer";
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
   delay,
   getSourcePage,
   isMac,
+  mainContainerScroll,
   useAdaptMainUIStyle,
   useEventCallback,
   useOpeningPageTabs,
@@ -31,8 +33,8 @@ const CloseSVG = () => (
 );
 
 function isTabEqual(
-  tab: ITabInfo | null | undefined,
-  anotherTab: ITabInfo | null | undefined
+  tab: Partial<ITabInfo> | null | undefined,
+  anotherTab: Partial<ITabInfo> | null | undefined
 ) {
   function isEqual(a?: string, b?: string) {
     return a?.toLowerCase() === b?.toLowerCase();
@@ -48,7 +50,7 @@ function isTabEqual(
 
 interface TabsProps {
   tabs: ITabInfo[];
-  activePage: ITabInfo | null;
+  activePage: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
   onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
   onPinTab: (tab: ITabInfo) => void;
@@ -147,9 +149,9 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
         }
       }
     };
-    top!.document.addEventListener("mousedown", listener, true);
+    top?.document.addEventListener("mousedown", listener, true);
     return () => {
-      top!.document.removeEventListener("mousedown", listener, true);
+      top?.document.removeEventListener("mousedown", listener, true);
     };
   }, [cb]);
 }
@@ -157,25 +159,31 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
 /**
  * the active page is the page that is currently being viewed
  */
-export function useActivePage() {
+export function useActivePage(tabs: ITabInfo[]) {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
-  const pageRef = React.useRef(page);
-  async function setActivePage() {
+  const setActivePage = useEventCallback(async () => {
     const p = await logseq.Editor.getCurrentPage();
+    if (p) {
+      const tab = tabs.find((t) => isTabEqual(t, p));
+      if (tab) {
+        mainContainerScroll({
+          top: tab.scrollTop,
+        });
+      }
+    }
     const page = await logseq.Editor.getPage(
       p?.name ?? (p as BlockEntity)?.page.id
     );
     setPage(page);
-    pageRef.current = page;
-  }
+  });
   React.useEffect(() => {
     return logseq.App.onRouteChanged(setActivePage);
-  }, []);
+  }, [setActivePage]);
   React.useEffect(() => {
     let stopped = false;
     async function poll() {
       await delay(1500);
-      if (!pageRef.current && !stopped) {
+      if (!page && !stopped) {
         await setActivePage();
         poll();
       }
@@ -184,14 +192,24 @@ export function useActivePage() {
     return () => {
       stopped = true;
     };
-  }, []);
+  }, [page, setActivePage]);
 
-  return [page, setPage] as const;
+  const tab = React.useMemo(() => {
+    if (page) {
+      return tabs.find((t) => isTabEqual(t, page));
+    }
+    return page;
+  }, [page, tabs]);
+
+  return [tab, setPage] as const;
 }
 
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useOpeningPageTabs();
-  const [activePage, setActivePage] = useActivePage();
+  const [activePage, setActivePage] = useActivePage(tabs);
+
+  const currActivePageRef = React.useRef<ITabInfo | null>();
+  const latestTabsRef = useLatest(tabs);
 
   const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
     if (idx == null) {
@@ -214,47 +232,38 @@ export function PageTabs(): JSX.Element {
   });
 
   const onNewTab = useEventCallback((t: ITabInfo | null) => {
-    setTabs((_tabs) => {
-      if (t) {
-        if (_tabs.every((_t) => !isTabEqual(t, _t))) {
-          return [..._tabs, t];
-        } else {
-          // If it is already in the tab, just make it active
-          setActivePage(t);
-        }
+    if (t) {
+      if (tabs.every((_t) => !isTabEqual(t, _t))) {
+        return setTabs([...tabs, t]);
+      } else {
+        setActivePage(t);
       }
-      return _tabs;
-    });
+    }
   });
 
   useCaptureAddPageAction(onNewTab);
-
-  const currActivePageRef = React.useRef<ITabInfo | null>();
-  const latestTabsRef = useLatest(tabs);
-
   useDeepCompareEffect(() => {
     let timer = 0;
     let newTabs = latestTabsRef.current;
     // If a new ActivePage is set, we will need to replace or insert the tab
     if (activePage) {
       if (tabs.every((t) => !isTabEqual(t, activePage))) {
-        newTabs = [...tabs];
-        const currentIndex = tabs.findIndex((t) =>
-          isTabEqual(t, currActivePageRef.current)
-        );
-        const currentPinned = tabs[currentIndex]?.pinned;
-        if (currentIndex === -1 || currentPinned) {
-          newTabs.push(activePage);
-        } else {
-          newTabs[currentIndex] = activePage;
-        }
+        newTabs = produce(tabs, (draft) => {
+          const currentIndex = draft.findIndex((t) =>
+            isTabEqual(t, currActivePageRef.current)
+          );
+          const currentPinned = draft[currentIndex]?.pinned;
+          if (currentIndex === -1 || currentPinned) {
+            draft.push(activePage);
+          } else {
+            draft[currentIndex] = activePage;
+          }
+        });
       }
-
       timer = setTimeout(() => {
         logseq.App.pushState("page", { name: activePage.originalName });
       }, 200);
     }
-    console.log(activePage);
     currActivePageRef.current = activePage;
     setTabs(newTabs);
     return () => {
@@ -265,20 +274,23 @@ export function PageTabs(): JSX.Element {
   }, [activePage ?? {}]);
 
   const onPinTab = useEventCallback((t) => {
-    setTabs((_tabs) =>
-      _tabs.map((ct) => (isTabEqual(t, ct) ? { ...t, pinned: !t.pinned } : ct))
+    setTabs(
+      produce(tabs, (draft) => {
+        const idx = draft.findIndex((ct) => isTabEqual(ct, t));
+        draft[idx].pinned = !draft[idx].pinned;
+      })
     );
   });
 
   const onSwapTab = (t0: ITabInfo, t1: ITabInfo) => {
-    setTabs((_tabs) => {
-      const newTabs = [..._tabs];
-      const i0 = _tabs.findIndex((t) => isTabEqual(t, t0));
-      const i1 = _tabs.findIndex((t) => isTabEqual(t, t1));
-      newTabs[i0] = t1;
-      newTabs[i1] = t0;
-      return newTabs;
-    });
+    setTabs(
+      produce(tabs, (draft) => {
+        const i0 = draft.findIndex((t) => isTabEqual(t, t0));
+        const i1 = draft.findIndex((t) => isTabEqual(t, t1));
+        draft[i0] = t1;
+        draft[i1] = t0;
+      })
+    );
   };
 
   // Handle keyboard shortcuts.
@@ -308,6 +320,16 @@ export function PageTabs(): JSX.Element {
   const scrollWidth = useScrollWidth(ref);
 
   const onClickTab = useEventCallback((t: ITabInfo) => {
+    // remember current page's scroll position
+    setTabs(
+      produce(tabs, (draft) => {
+        const idx = draft.findIndex((ct) =>
+          isTabEqual(ct, currActivePageRef.current)
+        );
+        draft[idx].scrollTop =
+          top?.document.querySelector("#main-container")?.scrollTop;
+      })
+    );
     setActivePage(t);
   });
 
