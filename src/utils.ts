@@ -88,6 +88,9 @@ export async function getSourcePage(
   return page;
 }
 
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 const KEY_ID = "logseq-opening-page-tabs:" + version;
 
 const readFromLocalStorage = () => {

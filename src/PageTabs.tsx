@@ -8,6 +8,7 @@ import { useDeepCompareEffect, useLatest } from "react-use";
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
+  delay,
   getSourcePage,
   isMac,
   useAdaptMainUIStyle,
@@ -171,18 +172,19 @@ export function useActivePage() {
     return logseq.App.onRouteChanged(setActivePage);
   }, []);
   React.useEffect(() => {
-    let t: number;
+    let stopped = false;
     async function poll() {
-      if (!pageRef.current) {
+      await delay(1500);
+      if (!pageRef.current && !stopped) {
         await setActivePage();
+        poll();
       }
-      t = setTimeout(poll, 500);
     }
     poll();
     return () => {
-      clearTimeout(t);
+      stopped = true;
     };
-  }, [page]);
+  }, []);
 
   return [page, setPage] as const;
 }
@@ -252,6 +254,7 @@ export function PageTabs(): JSX.Element {
         logseq.App.pushState("page", { name: activePage.originalName });
       }, 200);
     }
+    console.log(activePage);
     currActivePageRef.current = activePage;
     setTabs(newTabs);
     return () => {
