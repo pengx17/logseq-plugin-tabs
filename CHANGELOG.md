@@ -1,3 +1,10 @@
+## [1.4.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.2...v1.4.3) (2021-08-31)
+
+
+### Bug Fixes
+
+* some npe issues ([d0cdfa5](https://github.com/pengx17/logseq-plugin-tabs/commit/d0cdfa539c39063e0707b470f8facfc7fa07bda7))
+
 ## [1.4.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.1...v1.4.2) (2021-08-31)
 
 
