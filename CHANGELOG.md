@@ -1,3 +1,10 @@
+## [1.3.7](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.6...v1.3.7) (2021-08-31)
+
+
+### Bug Fixes
+
+* makes tabs more responsiveness ([18f269f](https://github.com/pengx17/logseq-plugin-tabs/commit/18f269f6ded39a747e2c968dcac4c5d497d86c83))
+
 ## [1.3.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.5...v1.3.6) (2021-08-30)
 
 
