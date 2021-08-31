@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.1...v1.4.2) (2021-08-31)
+
+
+### Bug Fixes
+
+* tabs position when there is pdf opening ([147bea5](https://github.com/pengx17/logseq-plugin-tabs/commit/147bea52b0e32bf1fcbc61d63e16aeeaacc610bb))
+
 ## [1.4.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.4.0...v1.4.1) (2021-08-31)
 
 
