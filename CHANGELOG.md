@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.8...v1.4.0) (2021-08-31)
+
+
+### Features
+
+* restore tab scroll position ([fe5008c](https://github.com/pengx17/logseq-plugin-tabs/commit/fe5008c23e9d82d037772ff029a998c882f6ad98))
+
 ## [1.3.8](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.3.7...v1.3.8) (2021-08-31)
 
 
