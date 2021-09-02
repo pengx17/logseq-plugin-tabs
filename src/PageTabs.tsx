@@ -94,8 +94,13 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             if (draggingTab) {
               // Prevent drag fly back animation
               e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
               onSwapTab(tab, draggingTab);
             }
+          };
+          const onDragStart: React.DragEventHandler = (e) => {
+            e.dataTransfer.effectAllowed = "move";
+            setDraggingTab(tab);
           };
           return (
             <div
@@ -107,7 +112,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               data-dragging={draggingTab === tab}
               draggable={true}
               onDragOver={onDragOver}
-              onDragStart={() => setDraggingTab(tab)}
+              onDragStart={onDragStart}
               className="logseq-tab"
             >
               <span className="logseq-tab-title">
