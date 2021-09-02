@@ -38,7 +38,7 @@ function isTabEqual(
   anotherTab: ITabInfo | null | undefined
 ) {
   function isEqual(a?: string, b?: string) {
-    return a?.toLowerCase() === b?.toLowerCase();
+    return a != null && b != null && a.toLowerCase() === b.toLowerCase();
   }
   if (tab?.page || anotherTab?.page) {
     return isEqual(tab?.uuid, anotherTab?.uuid);
@@ -116,7 +116,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               className="logseq-tab"
             >
               <span className="logseq-tab-title">
-                {tab.originalName}{" "}
+                {tab.originalName ?? tab.name}{" "}
                 {isBlock(tab) &&
                   `/ ${tab.uuid?.substring(tab.uuid.length - 12)}`}
               </span>
@@ -201,6 +201,7 @@ export function useActivePage(tabs: ITabInfo[]) {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
   const pageRef = React.useRef(page);
   const setActivePage = useEventCallback(async () => {
+    console.log("changed");
     const p = await logseq.Editor.getCurrentPage();
     let tab: ITabInfo | null = null;
     if (p) {
@@ -316,7 +317,9 @@ export function PageTabs(): JSX.Element {
       }
       timer = setTimeout(() => {
         logseq.App.pushState("page", {
-          name: isBlock(activePage) ? activePage.uuid : activePage.originalName,
+          name: isBlock(activePage)
+            ? activePage.uuid
+            : activePage.originalName ?? activePage.name,
         });
       }, 200);
     }

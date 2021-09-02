@@ -26,7 +26,7 @@ module.exports = {
     [
       "@semantic-release/github",
       {
-        assets: { path: "logseq-plugin-tabs-*.zip", label: "bundled" },
+        assets: "logseq-plugin-tabs-*.zip",
       },
     ],
   ],
