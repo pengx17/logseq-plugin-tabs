@@ -18,11 +18,15 @@
 }
 
 .logseq-tab-title {
-  @apply overflow-ellipsis max-w-80 px-1 overflow-hidden whitespace-nowrap inline transition-all duration-100 ease-in-out;
+  @apply overflow-ellipsis max-w-80 px-0.5 overflow-hidden whitespace-nowrap inline transition-all duration-100 ease-in-out;
 }
 
 .logseq-tab[data-active="false"] .logseq-tab-title {
   @apply max-w-40;
+}
+
+.logseq-tab[data-pinned="true"] .logseq-tab-title {
+  @apply max-w-10 overflow-ellipsis;
 }
 
 .logseq-tab[data-active="false"] button:hover {

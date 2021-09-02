@@ -115,6 +115,9 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               onDragStart={onDragStart}
               className="logseq-tab"
             >
+              <div className="text-xs rounded border mr-1 px-1 inline light:bg-white dark:bg-dark">
+                {isBlock(tab) ? "B" : "P"}
+              </div>
               <span className="logseq-tab-title">
                 {tab.originalName ?? tab.name}{" "}
                 {isBlock(tab) &&
