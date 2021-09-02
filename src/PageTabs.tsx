@@ -201,7 +201,6 @@ export function useActivePage(tabs: ITabInfo[]) {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
   const pageRef = React.useRef(page);
   const setActivePage = useEventCallback(async () => {
-    console.log("changed");
     const p = await logseq.Editor.getCurrentPage();
     let tab: ITabInfo | null = null;
     if (p) {

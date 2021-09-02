@@ -23,11 +23,13 @@ function main() {
 
   // @ts-expect-error
   top[magicKey] = true;
+  console.info(`#${pluginId}: MAIN DONE`);
 }
 
 // @ts-expect-error
 if (top[magicKey]) {
-  top!.location.reload();
+  await logseq.App.relaunch();
+  main();
+} else {
+  logseq.ready(main).catch(console.error);
 }
-
-logseq.ready(main).catch(console.error);
