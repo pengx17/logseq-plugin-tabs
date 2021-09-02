@@ -28,8 +28,7 @@ function main() {
 
 // @ts-expect-error
 if (top[magicKey]) {
-  await logseq.App.relaunch();
-  main();
+  logseq.App.relaunch().then(main).catch(console.error);
 } else {
   logseq.ready(main).catch(console.error);
 }
