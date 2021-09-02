@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.1...v1.5.2) (2021-09-02)
+
+
+### Bug Fixes
+
+* a issue when targeting block/page is not yet created ([5dae24e](https://github.com/pengx17/logseq-plugin-tabs/commit/5dae24e3a134660126712cd69f4d6b1e94e116f2))
+
 ## [1.5.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.0...v1.5.1) (2021-09-02)
 
 
