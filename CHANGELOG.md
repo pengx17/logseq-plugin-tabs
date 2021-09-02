@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.2...v1.5.3) (2021-09-02)
+
+
+### Bug Fixes
+
+* some style enhancements ([277ee7c](https://github.com/pengx17/logseq-plugin-tabs/commit/277ee7c3c7ff56251240eaffcc82de0fec52971f))
+
 ## [1.5.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.1...v1.5.2) (2021-09-02)
 
 
