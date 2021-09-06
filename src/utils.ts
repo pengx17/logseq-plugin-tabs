@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
-import { useDeepCompareEffect, useMountedState } from "react-use";
-
+import React, { useState } from "react";
+import {
+  useDeepCompareEffect,
+  useHoverDirty,
+  useMountedState,
+} from "react-use";
 import { version } from "../package.json";
 import { ITabInfo } from "./types";
 
@@ -124,6 +127,8 @@ export function useOpeningPageTabs() {
 }
 
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
+  const docRef = React.useRef(document.documentElement);
+  const isHovering = useHoverDirty(docRef);
   React.useEffect(() => {
     logseq.showMainUI(); // always on
     const listener = () => {
@@ -136,6 +141,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
           width,
           left,
         } = leftHeader.getBoundingClientRect();
+        const maxWidth = width - 10;
         logseq.setMainUIInlineStyle({
           zIndex: 9,
           userSelect: "none",
@@ -143,8 +149,8 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
           left: left + "px",
           top: `${topOffset + 2}px`,
           height: show ? "28px" : "0px",
-          width: Math.min(tabsWidth ?? 9999, width - 10) + "px", // 10 is the width of the scrollbar
-          transition: "width 0.2s, height 0.2s",
+          width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
+          maxWidth: maxWidth + "px",
         });
       }
     };
@@ -154,7 +160,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     return () => {
       ob.disconnect();
     };
-  }, [show, tabsWidth]);
+  }, [show, tabsWidth, isHovering]);
 }
 
 export const isMac = () => {
@@ -180,15 +186,13 @@ export const useScrollWidth = <T extends HTMLElement>(
 ) => {
   const [scrollWidth, setScrollWidth] = React.useState<number>();
   React.useEffect(() => {
+    const update = () => setScrollWidth(ref.current?.scrollWidth || 0);
     const mo = new MutationObserver(() => {
       // Run multiple times to take animation into account, hacky...
-      setScrollWidth(ref.current?.scrollWidth || 0);
-      setTimeout(() => {
-        setScrollWidth(ref.current?.scrollWidth || 0);
-      }, 100);
-      setTimeout(() => {
-        setScrollWidth(ref.current?.scrollWidth || 0);
-      }, 200);
+      update();
+      setTimeout(update, 100);
+      setTimeout(update, 200);
+      setTimeout(update, 300);
     });
     if (ref.current) {
       setScrollWidth(ref.current.scrollWidth || 0);

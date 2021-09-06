@@ -5,8 +5,8 @@
 }
 
 .logseq-tab[data-active="false"] {
-  @apply light:(bg-cool-gray-100 text-gray-400)
-         dark:(bg-cool-gray-800 text-gray-400);
+  @apply light:(bg-cool-gray-100 text-gray-400 hover:text-black)
+         dark:(bg-cool-gray-800 text-gray-400 hover:text-white);
 }
 
 .logseq-tab[data-active="true"] {
@@ -18,7 +18,7 @@
 }
 
 .logseq-tab-title {
-  @apply overflow-ellipsis max-w-80 px-0.5 overflow-hidden whitespace-nowrap inline transition-all duration-100 ease-in-out;
+  @apply overflow-ellipsis max-w-80 px-0.5 overflow-hidden whitespace-nowrap inline transition-all delay-75 duration-100 ease-in-out;
 }
 
 .logseq-tab[data-active="false"] .logseq-tab-title {
@@ -29,12 +29,25 @@
   @apply max-w-10 overflow-ellipsis;
 }
 
+.logseq-tab[data-active="true"] .logseq-tab-title {
+  @apply max-w-80;
+  transition-property: none;
+}
+
 .logseq-tab[data-active="false"] button:hover {
   visibility: hidden;
 }
 
 .logseq-tab[data-active="false"]:hover button {
   visibility: visible;
+}
+
+[data-dragging="false"]
+  .logseq-tab[data-active="false"][data-active="false"]:hover
+  .logseq-tab-title {
+  @apply max-w-80;
+  transition-delay: 1s;
+  transition-property: max-width;
 }
 
 .logseq-tab .close-button {

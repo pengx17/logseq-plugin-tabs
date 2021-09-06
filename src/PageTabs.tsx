@@ -81,6 +81,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       <div
         // @ts-expect-error ???
         ref={ref}
+        data-dragging={draggingTab != null}
         className={`flex items-center h-full px-1`}
         style={{ width: "fit-content" }}
       >
@@ -113,7 +114,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               draggable={true}
               onDragOver={onDragOver}
               onDragStart={onDragStart}
-              className="logseq-tab"
+              className="logseq-tab group"
             >
               <div className="text-xs rounded border mr-1 px-1 inline light:bg-white dark:bg-dark">
                 {isBlock(tab) ? "B" : "P"}
