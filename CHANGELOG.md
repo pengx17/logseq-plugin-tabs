@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.3...v1.5.4) (2021-09-06)
+
+
+### Bug Fixes
+
+* optimize animation ([6ba07f2](https://github.com/pengx17/logseq-plugin-tabs/commit/6ba07f2a7c6b799b5daf6c30ce6ce02cad76b028))
+
 ## [1.5.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.2...v1.5.3) (2021-09-02)
 
 
