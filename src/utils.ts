@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import React, { useState } from "react";
+import isEqual from 'fast-deep-equal';
 import {
-  useDeepCompareEffect,
   useHoverDirty,
-  useMountedState,
+  useMountedState
 } from "react-use";
 import { version } from "../package.json";
 import { ITabInfo } from "./types";
@@ -48,7 +48,7 @@ export const useThemeMode = () => {
       (top!.document
         .querySelector("html")
         ?.getAttribute("data-theme") as typeof mode) ??
-        (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
+      (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
     );
     return logseq.App.onThemeModeChanged((s) => {
       if (isMounted()) {
@@ -94,10 +94,12 @@ export async function getSourcePage(
 export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-const KEY_ID = "logseq-opening-page-tabs:" + version;
+function getKeyId(graph: string) {
+  return "logseq-plugin-tabs:" + version + "/" + graph;
+}
 
-const readFromLocalStorage = () => {
-  const str = localStorage.getItem(KEY_ID);
+const readFromLocalStorage = (graph: string): ITabInfo[] | null => {
+  const str = localStorage.getItem(getKeyId(graph));
   if (str) {
     try {
       return JSON.parse(str);
@@ -105,25 +107,47 @@ const readFromLocalStorage = () => {
       // no ops
     }
   }
-  return [];
+  return null;
 };
 
-const persistToLocalStorage = (tabs: ITabInfo[]) => {
-  localStorage.setItem(KEY_ID, JSON.stringify(tabs));
+const persistToLocalStorage = (tabs: ITabInfo[], graph: string) => {
+  localStorage.setItem(getKeyId(graph), JSON.stringify(tabs));
 };
 
-export function useOpeningPageTabs() {
-  const [tabs, setTabs] = React.useState<ITabInfo[]>(readFromLocalStorage());
+function useCurrentGraph() {
+  const [graph, setGraph] = useState<string | null>(null);
+  const reset = async () => {
+    const g = await logseq.App.getCurrentGraph();
+    setGraph(g?.path ?? null);
+  };
+  React.useEffect(() => {
+    reset();
+    return logseq.App.onCurrentGraphChanged(() => {
+      reset();
+    });
+  }, []);
+  return graph;
+}
 
-  useDeepCompareEffect(() => {
-    persistToLocalStorage(tabs);
-  }, [tabs]);
+export function useStoreTabs() {
+  const [tabs, setTabs] = React.useState<ITabInfo[]>([]);
+  const currentGraph = useCurrentGraph();
 
   React.useEffect(() => {
-    return logseq.App.onCurrentGraphChanged(() => setTabs([]));
-  }, []);
+    if (currentGraph) {
+      const tabs = readFromLocalStorage(currentGraph);
+      setTabs(tabs ?? []);
+    }
+  }, [currentGraph]);
 
-  return [tabs, setTabs] as const;
+  const userSetTabs = (newTabs: ITabInfo[]) => {
+    if (currentGraph && !isEqual(tabs, newTabs)) {
+      persistToLocalStorage(newTabs, currentGraph);
+      return setTabs(newTabs);
+    }
+  };
+
+  return [tabs, userSetTabs] as const;
 }
 
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {

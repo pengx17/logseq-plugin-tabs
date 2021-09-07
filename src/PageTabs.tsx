@@ -16,7 +16,7 @@ import {
   mainContainerScroll,
   useAdaptMainUIStyle,
   useEventCallback,
-  useOpeningPageTabs,
+  useStoreTabs,
   useScrollWidth,
 } from "./utils";
 
@@ -263,7 +263,7 @@ const sortTabs = (tabs: ITabInfo[]) => {
 };
 
 export function PageTabs(): JSX.Element {
-  const [tabs, setTabs] = useOpeningPageTabs();
+  const [tabs, setTabs] = useStoreTabs();
   const [activePage, setActivePage] = useActivePage(tabs);
 
   const currActivePageRef = React.useRef<ITabInfo | null>();
