@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.4...v1.6.0) (2021-09-07)
+
+
+### Features
+
+* enable multi-graph support. ([d1b2224](https://github.com/pengx17/logseq-plugin-tabs/commit/d1b222466c8f6281194bfcff21356639256ac2a9))
+
 ## [1.5.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.3...v1.5.4) (2021-09-06)
 
 
