@@ -158,7 +158,7 @@ function getBlockUUID(element: HTMLElement) {
 /**
  * Captures user CTRL Click a page link.
  */
-function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
+function useCaptureAddPageAction(cb: (e: ITabInfo, open: boolean) => void) {
   React.useEffect(() => {
     const listener = async (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLElement;
@@ -166,14 +166,13 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
       const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
 
       if (ctrlKey) {
+        let newTab: ITabInfo | null = null;
         if (isPageRef(target)) {
           e.stopPropagation();
           e.stopImmediatePropagation();
           const p = await getSourcePage(target.getAttribute("data-ref"));
           if (p) {
-            cb(p);
-            // Preload Page for performance
-            await logseq.Editor.getPageBlocksTree(p.uuid);
+            newTab = p;
           }
         } else if (getBlockUUID(target)) {
           e.stopPropagation();
@@ -184,10 +183,13 @@ function useCaptureAddPageAction(cb: (e: ITabInfo) => void) {
             if (block) {
               const page = await logseq.Editor.getPage(block?.page.id);
               if (page) {
-                cb({ ...page, ...block });
+                newTab = { ...page, ...block };
               }
             }
           }
+        }
+        if (newTab) {
+          cb(newTab, e.shiftKey);
         }
       }
     };
@@ -289,12 +291,33 @@ export function PageTabs(): JSX.Element {
     }
   });
 
-  const onNewTab = useEventCallback((t: ITabInfo | null) => {
+  const onClickTab = useEventCallback(async (t: ITabInfo) => {
+    setActivePage(t);
+    // remember current page's scroll position
+    const idx = tabs.findIndex((ct) =>
+      isTabEqual(ct, currActivePageRef.current)
+    );
+    if (idx !== -1) {
+      const scrollTop =
+        top?.document.querySelector("#main-container")?.scrollTop;
+
+      setTabs(
+        produce(tabs, (draft) => {
+          draft[idx].scrollTop = scrollTop;
+        })
+      );
+    }
+  });
+
+  const onNewTab = useEventCallback((t: ITabInfo | null, open = false) => {
     if (t) {
       if (tabs.every((_t) => !isTabEqual(t, _t))) {
-        return setTabs([...tabs, t]);
+        setTabs([...tabs, t]);
       } else {
-        setActivePage(t);
+        open = true;
+      }
+      if (open) {
+        onClickTab(t);
       }
     }
   });
@@ -382,24 +405,6 @@ export function PageTabs(): JSX.Element {
 
   const ref = React.useRef<HTMLElement>(null);
   const scrollWidth = useScrollWidth(ref);
-
-  const onClickTab = useEventCallback(async (t: ITabInfo) => {
-    setActivePage(t);
-    // remember current page's scroll position
-    const idx = tabs.findIndex((ct) =>
-      isTabEqual(ct, currActivePageRef.current)
-    );
-    if (idx !== -1) {
-      const scrollTop =
-        top?.document.querySelector("#main-container")?.scrollTop;
-
-      setTabs(
-        produce(tabs, (draft) => {
-          draft[idx].scrollTop = scrollTop;
-        })
-      );
-    }
-  });
 
   useAdaptMainUIStyle(tabs.length > 0, scrollWidth);
 
