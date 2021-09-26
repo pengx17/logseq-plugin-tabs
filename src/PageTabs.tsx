@@ -61,8 +61,6 @@ interface TabsProps {
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }
 
-// TODO: transition animations
-// ref: https://codesandbox.io/s/lucid-mendel-n7i98?file=/src/App.js
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
   ({ activePage, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
