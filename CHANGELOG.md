@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.6.0...v1.7.0) (2021-09-26)
+
+
+### Features
+
+* allow use shift+cmd+click to open and visit new tab ([7ea20ad](https://github.com/pengx17/logseq-plugin-tabs/commit/7ea20ad1e24a03549ec7d59974295d4edacf2ad6))
+
 # [1.6.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.5.4...v1.6.0) (2021-09-07)
 
 
