@@ -1,11 +1,11 @@
 import type { BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import produce from "immer";
 // @ts-expect-error no types
 import keyboardjs from "keyboardjs";
 // @ts-expect-error no types
 import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
-import produce from "immer";
 import "./PageTabs.css";
 import { ITabInfo } from "./types";
 import {
@@ -15,9 +15,10 @@ import {
   isMac,
   mainContainerScroll,
   useAdaptMainUIStyle,
+  useDebounceFn,
   useEventCallback,
-  useStoreTabs,
   useScrollWidth,
+  useStoreTabs,
 } from "./utils";
 
 const CloseSVG = () => (
@@ -46,7 +47,7 @@ function isTabEqual(
   return Boolean(
     isEqual(tab?.originalName, anotherTab?.originalName) ||
       isEqual(tab?.name, anotherTab?.name) ||
-      isEqual(tab?.uuid, anotherTab?.uuid) ||
+      // isEqual(tab?.uuid, anotherTab?.uuid) ||
       // @ts-expect-error
       tab?.alias?.includes(anotherTab?.id)
   );
@@ -56,7 +57,7 @@ interface TabsProps {
   tabs: ITabInfo[];
   activePage: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
-  onCloseTab: (tab: ITabInfo, tabIdx: number) => void;
+  onCloseTab: (tab: ITabInfo, force?: boolean) => void;
   onPinTab: (tab: ITabInfo) => void;
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }
@@ -75,6 +76,8 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       };
     }, []);
 
+    const debouncedSwap = useDebounceFn(onSwapTab, 100);
+
     return (
       <div
         // @ts-expect-error ???
@@ -83,18 +86,18 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         className={`flex items-center h-full px-1`}
         style={{ width: "fit-content" }}
       >
-        {tabs.map((tab, idx) => {
+        {tabs.map((tab) => {
           const isActive = isTabEqual(tab, activePage);
           const onClose: React.MouseEventHandler = (e) => {
             e.stopPropagation();
-            onCloseTab(tab, idx);
+            onCloseTab(tab);
           };
           const onDragOver: React.DragEventHandler = (e) => {
             if (draggingTab) {
               // Prevent drag fly back animation
               e.preventDefault();
               e.dataTransfer.dropEffect = "move";
-              onSwapTab(tab, draggingTab);
+              debouncedSwap(tab, draggingTab);
             }
           };
           const onDragStart: React.DragEventHandler = (e) => {
@@ -269,12 +272,11 @@ export function PageTabs(): JSX.Element {
   const currActivePageRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
 
-  const onCloseTab = useEventCallback((tab: ITabInfo, idx?: number) => {
-    if (idx == null) {
-      idx = tabs.findIndex((t) => isTabEqual(t, tab));
-    }
+  const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
+    const idx = tabs.findIndex((t) => isTabEqual(t, tab));
+
     // Do not close pinned
-    if (tabs[idx].pinned) {
+    if (tabs[idx]?.pinned && !force) {
       return;
     }
     const newTabs = [...tabs];
@@ -324,13 +326,12 @@ export function PageTabs(): JSX.Element {
   useDeepCompareEffect(() => {
     let timer = 0;
     let newTabs = latestTabsRef.current;
+    const prevTab = currActivePageRef.current;
     // If a new ActivePage is set, we will need to replace or insert the tab
     if (activePage) {
       if (tabs.every((t) => !isTabEqual(t, activePage))) {
         newTabs = produce(tabs, (draft) => {
-          const currentIndex = draft.findIndex((t) =>
-            isTabEqual(t, currActivePageRef.current)
-          );
+          const currentIndex = draft.findIndex((t) => isTabEqual(t, prevTab));
           const currentPinned = draft[currentIndex]?.pinned;
           if (currentIndex === -1 || currentPinned) {
             draft.push(activePage);
@@ -382,9 +383,7 @@ export function PageTabs(): JSX.Element {
   // FIXME: not working properly
   React.useEffect(() => {
     const topKb = new keyboardjs.Keyboard(top);
-    const currKb = new keyboardjs.Keyboard(window);
     topKb.setLocale("us", us);
-    currKb.setLocale("us", us);
     const closeCurrentTab = (e: Event) => {
       e.stopPropagation();
       e.preventDefault();
@@ -394,10 +393,8 @@ export function PageTabs(): JSX.Element {
     };
     const ctrlW = isMac() ? "command + w" : "ctrl + w";
     topKb.bind(ctrlW, closeCurrentTab);
-    currKb.bind(ctrlW, closeCurrentTab);
     return () => {
       topKb.unbind(ctrlW, closeCurrentTab);
-      currKb.unbind(ctrlW, closeCurrentTab);
     };
   }, [onCloseTab]);
 

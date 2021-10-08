@@ -180,7 +180,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     };
     listener();
     const ob = new ResizeObserver(listener);
-    ob.observe(top!.document.querySelector("#left-container")!);
+    ob.observe(top!.document.querySelector("#left-container #main-content")!);
     return () => {
       ob.disconnect();
     };
@@ -238,3 +238,36 @@ export const mainContainerScroll = (scrollOptions: ScrollToOptions) => {
 export const isBlock = (t: ITabInfo) => {
   return Boolean(t.page);
 };
+
+export const usePreventFocus = () => {
+  React.useEffect(() => {
+    let timer = 0;
+    const listener = () => {
+      setTimeout(() => {
+        if (window.document.hasFocus()) {
+          (top as any).focus();
+        }
+      });
+    };
+    timer = setInterval(listener, 1000);
+    window.addEventListener('focus', listener);
+    return () => {
+      window.removeEventListener('focus', listener);
+      clearInterval(timer);
+    };
+  })
+}
+
+export function useDebounceFn<T extends (...args: any[]) => any>(fn: T, delay: number) {
+  const [timer, setTimer] = React.useState<number | null>(null);
+  const debounced = useEventCallback((...args: any[]) => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    setTimeout(() => {
+      fn(...args);
+      setTimer(null);
+    }, delay);
+  }) as (...args: Parameters<T>) => void;
+  return debounced;
+}
