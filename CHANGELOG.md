@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.1...v1.7.2) (2021-10-08)
+
+
+### Bug Fixes
+
+* tabs sometimes prevent user from using shortcuts & tab name rename issue ([57c86d7](https://github.com/pengx17/logseq-plugin-tabs/commit/57c86d765e11b3cea9f094d5363e8903df51b703))
+
 ## [1.7.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.0...v1.7.1) (2021-09-26)
 
 
