@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.2...v1.7.3) (2021-10-12)
+
+
+### Bug Fixes
+
+* adapt for logseq 0.4.3 ([abe7d95](https://github.com/pengx17/logseq-plugin-tabs/commit/abe7d9514f079efb63ae042120534b1ba44aa436))
+
 ## [1.7.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.1...v1.7.2) (2021-10-08)
 
 
