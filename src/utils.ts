@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
-import React, { useState } from "react";
-import isEqual from 'fast-deep-equal';
-import {
-  useHoverDirty,
-  useMountedState
-} from "react-use";
+import React, { useMemo, useState } from "react";
+import isEqual from "fast-deep-equal";
+import { useHoverDirty, useMountedState } from "react-use";
 import { version } from "../package.json";
 import { ITabInfo } from "./types";
 
@@ -48,7 +45,7 @@ export const useThemeMode = () => {
       (top!.document
         .querySelector("html")
         ?.getAttribute("data-theme") as typeof mode) ??
-      (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
+        (matchMedia("prefers-color-scheme: dark").matches ? "dark" : "light")
     );
     return logseq.App.onThemeModeChanged((s) => {
       if (isMounted()) {
@@ -150,37 +147,62 @@ export function useStoreTabs() {
   return [tabs, userSetTabs] as const;
 }
 
+export function debounce<T extends (...args: any[]) => any>(fn: T, ms: number) {
+  let timeout: number | null = null;
+  return (...args: any[]) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = window.setTimeout(() => {
+      fn(...args);
+      timeout = null;
+    }, ms);
+  };
+}
+
+export function useDebounceFn<T extends (...args: any[]) => any>(
+  callback: T,
+  timeout = 300
+) {
+  const safeCallback = useEventCallback(callback);
+  return useMemo(
+    () => debounce(safeCallback, timeout),
+    [safeCallback, timeout]
+  );
+}
+
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
   const docRef = React.useRef(document.documentElement);
   const isHovering = useHoverDirty(docRef);
   React.useEffect(() => {
     logseq.showMainUI(); // always on
+
+    const headerEl = top!.document.querySelector(
+      "#head.cp__header"
+    )! as HTMLElement;
+
+    const mainContainer = top!.document.querySelector(
+      "#main-content-container"
+    )! as HTMLElement;
+    
     const listener = () => {
-      const leftHeader = top!.document.querySelector(
-        "#left-container .cp__header"
-      );
-      if (leftHeader) {
-        const {
-          bottom: topOffset,
-          width,
-          left,
-        } = leftHeader.getBoundingClientRect();
-        const maxWidth = width - 10;
-        logseq.setMainUIInlineStyle({
-          zIndex: 9,
-          userSelect: "none",
-          position: "fixed",
-          left: left + "px",
-          top: `${topOffset + 2}px`,
-          height: show ? "28px" : "0px",
-          width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
-          maxWidth: maxWidth + "px",
-        });
-      }
+      console.log("up");
+      const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
+      const maxWidth = width - leftOffset - 10;
+      logseq.setMainUIInlineStyle({
+        zIndex: 9,
+        userSelect: "none",
+        position: "fixed",
+        left: `${leftOffset}px`,
+        top: `${headerEl.offsetHeight + 2}px`,
+        height: show ? "28px" : "0px",
+        width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
+        maxWidth: maxWidth + "px",
+      });
     };
     listener();
     const ob = new ResizeObserver(listener);
-    ob.observe(top!.document.querySelector("#left-container #main-content")!);
+    ob.observe(mainContainer);
     return () => {
       ob.disconnect();
     };
@@ -250,24 +272,10 @@ export const usePreventFocus = () => {
       });
     };
     timer = setInterval(listener, 1000);
-    window.addEventListener('focus', listener);
+    window.addEventListener("focus", listener);
     return () => {
-      window.removeEventListener('focus', listener);
+      window.removeEventListener("focus", listener);
       clearInterval(timer);
     };
-  })
-}
-
-export function useDebounceFn<T extends (...args: any[]) => any>(fn: T, delay: number) {
-  const [timer, setTimer] = React.useState<number | null>(null);
-  const debounced = useEventCallback((...args: any[]) => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    setTimeout(() => {
-      fn(...args);
-      setTimer(null);
-    }, delay);
-  }) as (...args: Parameters<T>) => void;
-  return debounced;
-}
+  });
+};
