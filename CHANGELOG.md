@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.3...v1.7.4) (2021-10-12)
+
+
+### Bug Fixes
+
+* remove log ([cd5afcd](https://github.com/pengx17/logseq-plugin-tabs/commit/cd5afcdb899c92bc1e1130758d4074781b6e7370))
+
 ## [1.7.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.2...v1.7.3) (2021-10-12)
 
 
