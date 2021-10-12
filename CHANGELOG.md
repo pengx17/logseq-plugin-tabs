@@ -1,3 +1,10 @@
+## [1.7.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.4...v1.7.5) (2021-10-12)
+
+
+### Bug Fixes
+
+* tabs width when pdf is on ([6df1e41](https://github.com/pengx17/logseq-plugin-tabs/commit/6df1e41873cc2e3c31bf459c2ddf23554d463565))
+
 ## [1.7.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.3...v1.7.4) (2021-10-12)
 
 
