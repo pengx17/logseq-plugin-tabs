@@ -187,7 +187,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     
     const listener = () => {
       const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
-      const maxWidth = width - leftOffset - 10;
+      const maxWidth = width - 10;
       logseq.setMainUIInlineStyle({
         zIndex: 9,
         userSelect: "none",
