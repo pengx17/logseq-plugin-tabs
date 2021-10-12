@@ -186,7 +186,6 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     )! as HTMLElement;
     
     const listener = () => {
-      console.log("up");
       const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
       const maxWidth = width - leftOffset - 10;
       logseq.setMainUIInlineStyle({
