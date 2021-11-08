@@ -3,7 +3,7 @@ import type { PageEntity } from "@logseq/libs/dist/LSPlugin";
 import React, { useMemo, useState } from "react";
 import isEqual from "fast-deep-equal";
 import { useHoverDirty, useMountedState } from "react-use";
-import { version } from "../package.json";
+import { schemaVersion } from "../package.json";
 import { ITabInfo } from "./types";
 
 export const useAppVisible = () => {
@@ -92,7 +92,7 @@ export const delay = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 function getKeyId(graph: string) {
-  return "logseq-plugin-tabs:" + version + "/" + graph;
+  return "logseq-plugin-tabs:" + schemaVersion + "/" + graph;
 }
 
 const readFromLocalStorage = (graph: string): ITabInfo[] | null => {

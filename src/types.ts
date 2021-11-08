@@ -6,6 +6,9 @@ export interface ITabInfo {
   page?: {
     id: number;
   };
+  properties?: {
+    emoji?: string;
+  };
 
   // UI States:
   pinned?: boolean;

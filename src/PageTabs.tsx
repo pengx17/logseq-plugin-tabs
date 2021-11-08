@@ -104,6 +104,11 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             e.dataTransfer.effectAllowed = "move";
             setDraggingTab(tab);
           };
+          const prefix = tab.properties?.emoji
+            ? tab.properties?.emoji
+            : isBlock(tab)
+            ? "B"
+            : "P";
           return (
             <div
               onClick={() => onClickTab(tab)}
@@ -118,7 +123,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               className="logseq-tab group"
             >
               <div className="text-xs rounded border mr-1 px-1 inline light:bg-white dark:bg-dark">
-                {isBlock(tab) ? "B" : "P"}
+                {prefix}
               </div>
               <span className="logseq-tab-title">
                 {tab.originalName ?? tab.name}{" "}

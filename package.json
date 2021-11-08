@@ -1,6 +1,7 @@
 {
   "name": "logseq-plugin-tabs",
   "version": "1.7.5",
+  "schemaVersion": "1.0.0",
   "main": "dist/index.html",
   "scripts": {
     "dev": "vite",
