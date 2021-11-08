@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.5...v1.8.0) (2021-11-08)
+
+
+### Features
+
+* adapt page level properties as the prefix ([2f7aca9](https://github.com/pengx17/logseq-plugin-tabs/commit/2f7aca9fc1d60d7882d2fc71ef5e55a94313eb7c))
+
 ## [1.7.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.4...v1.7.5) (2021-10-12)
 
 
