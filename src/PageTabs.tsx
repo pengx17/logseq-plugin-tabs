@@ -221,8 +221,8 @@ export function useActivePage(tabs: ITabInfo[]) {
         tab = await logseq.Editor.getPage(
           p.name ?? (p as BlockEntity)?.page.id
         );
-        tab = { ...tab, ...p };
       }
+      tab = { ...tab, ...p };
       if (tab.scrollTop) {
         mainContainerScroll({ top: tab.scrollTop });
       }
@@ -248,14 +248,7 @@ export function useActivePage(tabs: ITabInfo[]) {
     };
   }, [setActivePage]);
 
-  const tab = React.useMemo(() => {
-    if (page) {
-      return tabs.find((t) => isTabEqual(t, page)) ?? page;
-    }
-    return page;
-  }, [page, tabs]);
-
-  return [tab, setPage] as const;
+  return [page, setPage] as const;
 }
 
 const sortTabs = (tabs: ITabInfo[]) => {
@@ -334,8 +327,8 @@ export function PageTabs(): JSX.Element {
     const prevTab = currActivePageRef.current;
     // If a new ActivePage is set, we will need to replace or insert the tab
     if (activePage) {
-      if (tabs.every((t) => !isTabEqual(t, activePage))) {
-        newTabs = produce(tabs, (draft) => {
+      newTabs = produce(tabs, (draft) => {
+        if (tabs.every((t) => !isTabEqual(t, activePage))) {
           const currentIndex = draft.findIndex((t) => isTabEqual(t, prevTab));
           const currentPinned = draft[currentIndex]?.pinned;
           if (currentIndex === -1 || currentPinned) {
@@ -343,8 +336,14 @@ export function PageTabs(): JSX.Element {
           } else {
             draft[currentIndex] = activePage;
           }
-        });
-      }
+        } else {
+          // Update the data if it is already in the list (to update icons etc)
+          const currentIndex = draft.findIndex((t) =>
+            isTabEqual(t, activePage)
+          );
+          draft[currentIndex] = activePage;
+        }
+      });
       timer = setTimeout(() => {
         logseq.App.pushState("page", {
           name: isBlock(activePage)
