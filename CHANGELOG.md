@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.0...v1.8.1) (2021-11-11)
+
+
+### Bug Fixes
+
+* update tab icons ([0de928d](https://github.com/pengx17/logseq-plugin-tabs/commit/0de928dd2afff60301ea5c557b89d27627ae36fa))
+
 # [1.8.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.7.5...v1.8.0) (2021-11-08)
 
 
