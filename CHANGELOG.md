@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.1...v1.8.2) (2021-11-12)
+
+
+### Bug Fixes
+
+* should only pushState when change to different pages ([1ece34c](https://github.com/pengx17/logseq-plugin-tabs/commit/1ece34ce91e8f16c37b879add5920029879d347b))
+
 ## [1.8.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.0...v1.8.1) (2021-11-11)
 
 
