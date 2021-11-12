@@ -113,7 +113,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             <div
               onClick={() => onClickTab(tab)}
               onDoubleClick={() => onPinTab(tab)}
-              key={tab.uuid}
+              key={tab.uuid ?? tab.name}
               data-active={isActive}
               data-pinned={tab.pinned}
               data-dragging={draggingTab === tab}
@@ -344,12 +344,15 @@ export function PageTabs(): JSX.Element {
           draft[currentIndex] = activePage;
         }
       });
-      timer = setTimeout(() => {
-        logseq.App.pushState("page", {
-          name: isBlock(activePage)
-            ? activePage.uuid
-            : activePage.originalName ?? activePage.name,
-        });
+      timer = setTimeout(async () => {
+        const p = await logseq.Editor.getCurrentPage();
+        if (!isTabEqual(activePage, p)) {
+          logseq.App.pushState("page", {
+            name: isBlock(activePage)
+              ? activePage.uuid
+              : activePage.originalName ?? activePage.name,
+          });
+        }
       }, 200);
     }
     currActivePageRef.current = activePage;
