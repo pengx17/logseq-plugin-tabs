@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.2...v1.8.3) (2021-11-15)
+
+
+### Bug Fixes
+
+* tabs scroll on active is not working ([41635e9](https://github.com/pengx17/logseq-plugin-tabs/commit/41635e90b7e9118dbc317f645eea093e785e6c36))
+
 ## [1.8.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.1...v1.8.2) (2021-11-12)
 
 
