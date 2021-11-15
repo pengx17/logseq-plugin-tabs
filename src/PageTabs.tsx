@@ -414,7 +414,7 @@ export function PageTabs(): JSX.Element {
     if (activePage && ref) {
       setTimeout(() => {
         ref.current
-          ?.querySelector(`[data-active]`)
+          ?.querySelector(`[data-active="true"]`)
           ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
