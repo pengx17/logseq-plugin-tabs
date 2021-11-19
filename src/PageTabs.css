@@ -25,10 +25,6 @@
   @apply max-w-40;
 }
 
-.logseq-tab[data-pinned="true"] .logseq-tab-title {
-  @apply max-w-10 overflow-ellipsis;
-}
-
 .logseq-tab[data-active="true"] .logseq-tab-title {
   @apply max-w-80;
   transition-property: none;

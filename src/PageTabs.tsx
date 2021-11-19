@@ -76,7 +76,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       };
     }, []);
 
-    const debouncedSwap = useDebounceFn(onSwapTab, 100);
+    const debouncedSwap = useDebounceFn(onSwapTab, 0);
 
     return (
       <div
