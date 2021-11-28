@@ -1,3 +1,11 @@
+## [1.8.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.4...v1.8.5) (2021-11-28)
+
+
+### Bug Fixes
+
+* allow open sidebar items into tabs ([69ab179](https://github.com/pengx17/logseq-plugin-tabs/commit/69ab1794c769e3a55866a6359eedd2a348c2eff4))
+* preserve focus when hovering tabs ([aeb1a23](https://github.com/pengx17/logseq-plugin-tabs/commit/aeb1a23fff666626e42d0e871eec93b69f8b1c57))
+
 ## [1.8.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.3...v1.8.4) (2021-11-19)
 
 
