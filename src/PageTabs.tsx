@@ -104,8 +104,8 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             e.dataTransfer.effectAllowed = "move";
             setDraggingTab(tab);
           };
-          const prefix = tab.properties?.emoji
-            ? tab.properties?.emoji
+          const prefix = tab.properties?.icon
+            ? tab.properties?.icon
             : isBlock(tab)
             ? "B"
             : "P";
@@ -145,13 +145,29 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
   }
 );
 
-function isPageRef(element: HTMLElement) {
+function getPageRef(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
-  return (
+  return getlockContentPageRef(el) ?? getSidebarPageRef(el);
+}
+
+function getlockContentPageRef(element: HTMLElement) {
+  const el = element as HTMLAnchorElement;
+  if (
     el.tagName === "A" &&
     el.hasAttribute("data-ref") &&
     (el.className.includes("page-ref") || el.className.includes("tag"))
-  );
+  ) {
+    return element.getAttribute("data-ref");
+  }
+}
+
+function getSidebarPageRef(element: HTMLElement) {
+  const el = element as HTMLAnchorElement;
+  if (el.tagName === "A" && el.querySelector(".page-icon")) {
+    return Array.from(element.childNodes)
+      .find((n) => n.nodeName === "#text")
+      ?.textContent?.trim();
+  }
 }
 
 function getBlockUUID(element: HTMLElement) {
@@ -173,10 +189,10 @@ function useCaptureAddPageAction(cb: (e: ITabInfo, open: boolean) => void) {
 
       if (ctrlKey) {
         let newTab: ITabInfo | null = null;
-        if (isPageRef(target)) {
+        if (getPageRef(target)) {
           e.stopPropagation();
           e.stopImmediatePropagation();
-          const p = await getSourcePage(target.getAttribute("data-ref"));
+          const p = await getSourcePage(getPageRef(target));
           if (p) {
             newTab = p;
           }

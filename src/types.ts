@@ -7,7 +7,7 @@ export interface ITabInfo {
     id: number;
   };
   properties?: {
-    emoji?: string;
+    icon?: string;
   };
 
   // UI States:
