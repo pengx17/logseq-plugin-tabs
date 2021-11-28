@@ -184,7 +184,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     const mainContainer = top!.document.querySelector(
       "#main-content-container"
     )! as HTMLElement;
-    
+
     const listener = () => {
       const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
       const maxWidth = width - 10;
@@ -260,20 +260,23 @@ export const isBlock = (t: ITabInfo) => {
   return Boolean(t.page);
 };
 
+// Makes sure the user will not lose focus (editing state) when previewing a link
 export const usePreventFocus = () => {
+  const restoreFocus = useDebounceFn(
+    useEventCallback(() => {
+      if (window.document.hasFocus()) {
+        (top as any).focus();
+        logseq.Editor.restoreEditingCursor();
+      }
+    }),
+    10
+  );
   React.useEffect(() => {
     let timer = 0;
-    const listener = () => {
-      setTimeout(() => {
-        if (window.document.hasFocus()) {
-          (top as any).focus();
-        }
-      });
-    };
-    timer = setInterval(listener, 1000);
-    window.addEventListener("focus", listener);
+    timer = setInterval(restoreFocus, 1000);
+    window.addEventListener("focus", restoreFocus);
     return () => {
-      window.removeEventListener("focus", listener);
+      window.removeEventListener("focus", restoreFocus);
       clearInterval(timer);
     };
   });
