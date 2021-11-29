@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.5...v1.8.6) (2021-11-29)
+
+
+### Bug Fixes
+
+* add a border to tabs ([46cdd8c](https://github.com/pengx17/logseq-plugin-tabs/commit/46cdd8c7e6dec0f872d3c75a580068eec0f181c9))
+
 ## [1.8.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.4...v1.8.5) (2021-11-28)
 
 
