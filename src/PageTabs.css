@@ -1,6 +1,6 @@
 .logseq-tab {
   @apply cursor-pointer font-sans select-none text-xs h-6 transition-all duration-100
-  flex items-center rounded mx-0.5
+  flex items-center rounded mx-0.5 border border-1 light:border-gray-200 dark:border-gray-900
     px-2 light:text-black dark:text-white;
 }
 
