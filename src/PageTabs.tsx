@@ -113,6 +113,10 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             <div
               onClick={() => onClickTab(tab)}
               onDoubleClick={() => onPinTab(tab)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                console.log("Not implemented yet");
+              }}
               key={tab.uuid ?? tab.name}
               data-active={isActive}
               data-pinned={tab.pinned}
