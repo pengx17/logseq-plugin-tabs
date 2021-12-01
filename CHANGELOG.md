@@ -1,3 +1,10 @@
+## [1.8.7](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.6...v1.8.7) (2021-12-01)
+
+
+### Bug Fixes
+
+* disable context menu event for now ([4092b38](https://github.com/pengx17/logseq-plugin-tabs/commit/4092b3832952c594b786bcbac764486bf5d8ec27))
+
 ## [1.8.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.5...v1.8.6) (2021-11-29)
 
 
