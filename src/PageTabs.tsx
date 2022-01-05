@@ -1,9 +1,5 @@
 import type { BlockEntity } from "@logseq/libs/dist/LSPlugin";
 import produce from "immer";
-// @ts-expect-error no types
-import keyboardjs from "keyboardjs";
-// @ts-expect-error no types
-import { us } from "keyboardjs/locales/us";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
 import "./PageTabs.css";
@@ -405,25 +401,6 @@ export function PageTabs(): JSX.Element {
       })
     );
   };
-
-  // Handle keyboard shortcuts.
-  // FIXME: not working properly
-  React.useEffect(() => {
-    const topKb = new keyboardjs.Keyboard(top);
-    topKb.setLocale("us", us);
-    const closeCurrentTab = (e: Event) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (currActivePageRef.current) {
-        onCloseTab(currActivePageRef.current);
-      }
-    };
-    const ctrlW = isMac() ? "command + w" : "ctrl + w";
-    topKb.bind(ctrlW, closeCurrentTab);
-    return () => {
-      topKb.unbind(ctrlW, closeCurrentTab);
-    };
-  }, [onCloseTab]);
 
   const ref = React.useRef<HTMLElement>(null);
   const scrollWidth = useScrollWidth(ref);
