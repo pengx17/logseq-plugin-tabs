@@ -1,3 +1,11 @@
+## [1.8.8](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.7...v1.8.8) (2022-02-17)
+
+
+### Bug Fixes
+
+* remove keyboard shortcuts for now (will refactor this later) ([24d9445](https://github.com/pengx17/logseq-plugin-tabs/commit/24d9445b51d707eea635bb9f3cb3373d5794f850))
+* show block content in tab ([9239369](https://github.com/pengx17/logseq-plugin-tabs/commit/92393696953d57ccfaa034d3dfc4824926907c4c)), closes [#16](https://github.com/pengx17/logseq-plugin-tabs/issues/16)
+
 ## [1.8.7](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.6...v1.8.7) (2021-12-01)
 
 
