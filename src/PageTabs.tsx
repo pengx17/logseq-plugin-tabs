@@ -111,6 +111,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               onDoubleClick={() => onPinTab(tab)}
               onContextMenu={(e) => {
                 e.preventDefault();
+                // TODO: show the same context menu like right-clicking the title?
                 console.log("Not implemented yet");
               }}
               key={tab.uuid ?? tab.name}
@@ -127,8 +128,12 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               </div>
               <span className="logseq-tab-title">
                 {tab.originalName ?? tab.name}{" "}
-                {isBlock(tab) &&
-                  `/ ${tab.uuid?.substring(tab.uuid.length - 12)}`}
+                {isBlock(tab) && (
+                  <span title={tab.content}>
+                    <strong className="text-blue-600">•</strong>
+                    <span className="mx-1">{tab.content}</span>
+                  </span>
+                )}
               </span>
               {tab.pinned ? (
                 <span>📌</span>

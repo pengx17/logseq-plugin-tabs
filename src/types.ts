@@ -3,6 +3,7 @@ export interface ITabInfo {
   uuid?: string;
   name?: string;
   originalName?: string;
+  content?: string;
   page?: {
     id: number;
   };
