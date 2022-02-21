@@ -81,6 +81,8 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         data-dragging={draggingTab != null}
         className={`flex items-center h-full px-1`}
         style={{ width: "fit-content" }}
+        // By default middle button click will enter the horizontal scroll mode
+        onMouseDown={e => { if (e.button === 1) e.preventDefault(); }}
       >
         {tabs.map((tab) => {
           const isActive = isTabEqual(tab, activePage);
@@ -108,6 +110,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
           return (
             <div
               onClick={() => onClickTab(tab)}
+              onAuxClick={onClose}
               onDoubleClick={() => onPinTab(tab)}
               onContextMenu={(e) => {
                 e.preventDefault();
