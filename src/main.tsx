@@ -6,14 +6,17 @@ import "./reset.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-
-import { logseq as PL } from "../package.json";
-
-const magicKey = `__${PL.id}__loaded__`;
+import { isMac } from "./utils";
 
 function main() {
   const pluginId = logseq.baseInfo.id;
   console.info(`#${pluginId}: MAIN`);
+  const mac = isMac();
+  logseq.provideStyle(`
+  [data-active-keystroke=${mac ? "Meta" : "Control"} i]
+    :is(.block-ref,.page-ref,a.tag) {
+    cursor: n-resize
+  }`);
   ReactDOM.render(
     <React.StrictMode>
       <App />
@@ -21,14 +24,7 @@ function main() {
     document.getElementById("app")
   );
 
-  // @ts-expect-error
-  top[magicKey] = true;
   console.info(`#${pluginId}: MAIN DONE`);
 }
 
-// @ts-expect-error
-if (top[magicKey]) {
-  logseq.App.relaunch().then(main).catch(console.error);
-} else {
-  logseq.ready(main).catch(console.error);
-}
+logseq.ready(main).catch(console.error);

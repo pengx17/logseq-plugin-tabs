@@ -1,4 +1,7 @@
-import type { BlockEntity } from "@logseq/libs/dist/LSPlugin";
+import type {
+  BlockEntity,
+  SimpleCommandKeybinding,
+} from "@logseq/libs/dist/LSPlugin";
 import produce from "immer";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
@@ -82,7 +85,9 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         className={`flex items-center h-full px-1`}
         style={{ width: "fit-content" }}
         // By default middle button click will enter the horizontal scroll mode
-        onMouseDown={e => { if (e.button === 1) e.preventDefault(); }}
+        onMouseDown={(e) => {
+          if (e.button === 1) e.preventDefault();
+        }}
       >
         {tabs.map((tab) => {
           const isActive = isTabEqual(tab, activePage);
@@ -287,6 +292,18 @@ const sortTabs = (tabs: ITabInfo[]) => {
   });
 };
 
+const useRegisterKeybindings = (
+  opts: { key: string; keybinding: SimpleCommandKeybinding; label: string },
+  cb: () => void
+) => {
+  const cbRef = useEventCallback(cb);
+
+  React.useEffect(() => {
+    logseq.App.registerCommandPalette(opts, cbRef);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useStoreTabs();
   const [activePage, setActivePage] = useActivePage(tabs);
@@ -424,6 +441,38 @@ export function PageTabs(): JSX.Element {
       }, 100);
     }
   }, [activePage, ref]);
+
+  useRegisterKeybindings(
+    {
+      key: "logseq-tab-toggle-pin",
+      label: "Tabs: Toggle Tab Pin Status",
+      keybinding: {
+        mode: "global",
+        binding: "mod+p",
+      },
+    },
+    () => {
+      if (currActivePageRef.current) {
+        onPinTab(currActivePageRef.current);
+      }
+    }
+  );
+
+  useRegisterKeybindings(
+    {
+      key: "logseq-tab-close",
+      label: "Tabs: Close Current Tab",
+      keybinding: {
+        mode: "global",
+        binding: "mod+shift+w",
+      },
+    },
+    () => {
+      if (currActivePageRef.current) {
+        onCloseTab(currActivePageRef.current);
+      }
+    }
+  );
 
   return (
     <Tabs
