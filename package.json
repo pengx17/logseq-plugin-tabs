@@ -1,6 +1,6 @@
 {
   "name": "logseq-plugin-tabs",
-  "version": "1.8.9",
+  "version": "1.9.0",
   "schemaVersion": "1.0.0",
   "main": "dist/index.html",
   "scripts": {

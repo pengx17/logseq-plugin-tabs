@@ -1,3 +1,15 @@
+# [1.9.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.9...v1.9.0) (2022-03-11)
+
+
+### Bug Fixes
+
+* cursor blink issue ([0947f31](https://github.com/pengx17/logseq-plugin-tabs/commit/0947f31d5f99122b4dffa9c2c3f2a647d5f04b17))
+
+
+### Features
+
+* add two keyboard shortcuts ([5bffa80](https://github.com/pengx17/logseq-plugin-tabs/commit/5bffa80be9eb01d22cd4106d896a8e892e764e43))
+
 ## [1.8.9](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.8...v1.8.9) (2022-02-21)
 
 
