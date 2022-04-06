@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.0...v1.9.1) (2022-04-06)
+
+
+### Bug Fixes
+
+* keyboard binding sometimes does not work ([465c5a7](https://github.com/pengx17/logseq-plugin-tabs/commit/465c5a750c54b11c95930626e6acbead6e3ae732))
+
 # [1.9.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.8.9...v1.9.0) (2022-03-11)
 
 
