@@ -15,6 +15,8 @@ UX is mainly brought from modern browsers:
 
 ## Keyboard shortcuts
 
+Note: replace <kbd>SHIFT</kbd> with <kbd>CMD</kbd> on macOS
+
 - Pin/unpin a tab: <kbd>CTRL</kbd> + <kbd>P</kbd>
 - Close a tab: <kbd>SHIFT</kbd> + <kbd>CTRL</kbd> + <kbd>W</kbd>
 

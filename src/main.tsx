@@ -15,7 +15,11 @@ function main() {
   [data-active-keystroke=${mac ? "Meta" : "Control"} i]
     :is(.block-ref,.page-ref,a.tag) {
     cursor: n-resize
-  }`);
+  }
+  #main-content-container {
+    padding-top: 64px;
+  }
+  `);
 
   const root = ReactDOM.createRoot(document.getElementById("app")!);
   root.render(
