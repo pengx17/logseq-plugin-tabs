@@ -1,11 +1,10 @@
 import "@logseq/libs";
+import React from "react";
+import * as ReactDOM from "react-dom/client";
 import "virtual:windi.css";
 
-import "./reset.css";
-
-import React from "react";
-import ReactDOM from "react-dom";
 import App from "./App";
+import "./reset.css";
 import { isMac } from "./utils";
 
 function main() {
@@ -17,11 +16,12 @@ function main() {
     :is(.block-ref,.page-ref,a.tag) {
     cursor: n-resize
   }`);
-  ReactDOM.render(
+
+  const root = ReactDOM.createRoot(document.getElementById("app")!);
+  root.render(
     <React.StrictMode>
       <App />
-    </React.StrictMode>,
-    document.getElementById("app")
+    </React.StrictMode>
   );
 
   console.info(`#${pluginId}: MAIN DONE`);

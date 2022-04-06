@@ -259,3 +259,25 @@ export const mainContainerScroll = (scrollOptions: ScrollToOptions) => {
 export const isBlock = (t: ITabInfo) => {
   return Boolean(t.page);
 };
+
+// Makes sure the user will not lose focus (editing state) when previewing a link
+export const usePreventFocus = () => {
+  const restoreFocus = useDebounceFn(
+    useEventCallback(() => {
+      if (window.document.hasFocus()) {
+        (top as any).focus();
+        logseq.Editor.restoreEditingCursor();
+      }
+    }),
+    10
+  );
+  React.useEffect(() => {
+    let timer = 0;
+    timer = setInterval(restoreFocus, 1000);
+    window.addEventListener("focus", restoreFocus);
+    return () => {
+      window.removeEventListener("focus", restoreFocus);
+      clearInterval(timer);
+    };
+  });
+};

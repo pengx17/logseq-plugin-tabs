@@ -13,8 +13,9 @@ UX is mainly brought from modern browsers:
 - you can drag & drop to reorder tabs
 - tabs info will be persisted in your local storage, so that your tabs will recover even if you re-open the app
 
-## TODO
+## Keyboard shortcuts
 
-- [ ] keyboard shortcuts. Eg., CTRL+TAB to switch to next tab, CTRL+SHIFT+TAB to switch to previous tab, CTRL+W to close current tab
+- Pin/unpin a tab: <kbd>CTRL</kbd> + <kbd>P</kbd>
+- Close a tab: <kbd>SHIFT</kbd> + <kbd>CTRL</kbd> + <kbd>W</kbd>
 
 ![](./demo.gif)
