@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.1...v1.9.2) (2022-04-06)
+
+
+### Bug Fixes
+
+* add a padding top to make tabs & content fit nicer ([04e4bdf](https://github.com/pengx17/logseq-plugin-tabs/commit/04e4bdf23b419be117bda38023dfabe1e31ccb4b))
+
 ## [1.9.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.0...v1.9.1) (2022-04-06)
 
 
