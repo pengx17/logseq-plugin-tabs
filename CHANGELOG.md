@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.2...v1.10.0) (2022-04-18)
+
+
+### Features
+
+* add CTRL+TAB & CTRL+SHIFT+TAB commands ([34f2e3d](https://github.com/pengx17/logseq-plugin-tabs/commit/34f2e3d3d2e18821bbbf417a47d3573f35cc691b))
+
 ## [1.9.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.1...v1.9.2) (2022-04-06)
 
 
