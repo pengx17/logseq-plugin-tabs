@@ -54,7 +54,7 @@ function isTabEqual(
 
 interface TabsProps {
   tabs: ITabInfo[];
-  activePage: ITabInfo | null | undefined;
+  activeTab: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
   onCloseTab: (tab: ITabInfo, force?: boolean) => void;
   onPinTab: (tab: ITabInfo) => void;
@@ -62,7 +62,7 @@ interface TabsProps {
 }
 
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
-  ({ activePage, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
+  ({ activeTab, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
 
     React.useEffect(() => {
@@ -90,7 +90,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         }}
       >
         {tabs.map((tab) => {
-          const isActive = isTabEqual(tab, activePage);
+          const isActive = isTabEqual(tab, activeTab);
           const onClose: React.MouseEventHandler = (e) => {
             e.stopPropagation();
             onCloseTab(tab);
@@ -160,10 +160,10 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
 
 function getPageRef(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
-  return getlockContentPageRef(el) ?? getSidebarPageRef(el);
+  return getBlockContentPageRef(el) ?? getSidebarPageRef(el);
 }
 
-function getlockContentPageRef(element: HTMLElement) {
+function getBlockContentPageRef(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
   if (
     el.tagName === "A" &&
@@ -193,7 +193,7 @@ function getBlockUUID(element: HTMLElement) {
 /**
  * Captures user CTRL Click a page link.
  */
-function useCaptureAddPageAction(cb: (e: ITabInfo, open: boolean) => void) {
+function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
   React.useEffect(() => {
     const listener = async (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLElement;
@@ -238,7 +238,7 @@ function useCaptureAddPageAction(cb: (e: ITabInfo, open: boolean) => void) {
 /**
  * the active page is the page that is currently being viewed
  */
-export function useActivePage(tabs: ITabInfo[]) {
+export function useActiveTab(tabs: ITabInfo[]) {
   const [page, setPage] = React.useState<null | ITabInfo>(null);
   const pageRef = React.useRef(page);
   const setActivePage = useEventCallback(async () => {
@@ -306,9 +306,9 @@ const useRegisterKeybindings = (
 
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useStoreTabs();
-  const [activePage, setActivePage] = useActivePage(tabs);
+  const [activeTab, setActiveTab] = useActiveTab(tabs);
 
-  const currActivePageRef = React.useRef<ITabInfo | null>();
+  const currActiveTabRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
 
   const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
@@ -324,18 +324,20 @@ export function PageTabs(): JSX.Element {
 
     if (newTabs.length === 0) {
       logseq.App.pushState("home");
-    } else if (isTabEqual(tab, activePage)) {
+    } else if (isTabEqual(tab, activeTab)) {
       const newTab = newTabs[Math.min(newTabs.length - 1, idx)];
-      setActivePage(newTab);
+      setActiveTab(newTab);
     }
   });
 
-  const onClickTab = useEventCallback(async (t: ITabInfo) => {
-    setActivePage(t);
+  const getCurrentActiveIndex = () => {
+    return tabs.findIndex((ct) => isTabEqual(ct, currActiveTabRef.current));
+  };
+
+  const onChangeTab = useEventCallback(async (t: ITabInfo) => {
+    setActiveTab(t);
+    const idx = getCurrentActiveIndex();
     // remember current page's scroll position
-    const idx = tabs.findIndex((ct) =>
-      isTabEqual(ct, currActivePageRef.current)
-    );
     if (idx !== -1) {
       const scrollTop =
         top?.document.querySelector("#main-container")?.scrollTop;
@@ -356,54 +358,52 @@ export function PageTabs(): JSX.Element {
         open = true;
       }
       if (open) {
-        onClickTab(t);
+        onChangeTab(t);
       }
     }
   });
 
-  useCaptureAddPageAction(onNewTab);
+  useCaptureAddTabAction(onNewTab);
   useDeepCompareEffect(() => {
     let timer = 0;
     let newTabs = latestTabsRef.current;
-    const prevTab = currActivePageRef.current;
-    // If a new ActivePage is set, we will need to replace or insert the tab
-    if (activePage) {
+    const prevTab = currActiveTabRef.current;
+    // If a new ActiveTab is set, we will need to replace or insert the tab
+    if (activeTab) {
       newTabs = produce(tabs, (draft) => {
-        if (tabs.every((t) => !isTabEqual(t, activePage))) {
+        if (tabs.every((t) => !isTabEqual(t, activeTab))) {
           const currentIndex = draft.findIndex((t) => isTabEqual(t, prevTab));
           const currentPinned = draft[currentIndex]?.pinned;
           if (currentIndex === -1 || currentPinned) {
-            draft.push(activePage);
+            draft.push(activeTab);
           } else {
-            draft[currentIndex] = activePage;
+            draft[currentIndex] = activeTab;
           }
         } else {
           // Update the data if it is already in the list (to update icons etc)
-          const currentIndex = draft.findIndex((t) =>
-            isTabEqual(t, activePage)
-          );
-          draft[currentIndex] = activePage;
+          const currentIndex = draft.findIndex((t) => isTabEqual(t, activeTab));
+          draft[currentIndex] = activeTab;
         }
       });
       timer = setTimeout(async () => {
         const p = await logseq.Editor.getCurrentPage();
-        if (!isTabEqual(activePage, p)) {
+        if (!isTabEqual(activeTab, p)) {
           logseq.App.pushState("page", {
-            name: isBlock(activePage)
-              ? activePage.uuid
-              : activePage.originalName ?? activePage.name,
+            name: isBlock(activeTab)
+              ? activeTab.uuid
+              : activeTab.originalName ?? activeTab.name,
           });
         }
       }, 200);
     }
-    currActivePageRef.current = activePage;
+    currActiveTabRef.current = activeTab;
     setTabs(newTabs);
     return () => {
       if (timer) {
         clearTimeout(timer);
       }
     };
-  }, [activePage ?? {}]);
+  }, [activeTab ?? {}]);
 
   const onPinTab = useEventCallback((t) => {
     setTabs(
@@ -433,14 +433,14 @@ export function PageTabs(): JSX.Element {
   useAdaptMainUIStyle(tabs.length > 0, scrollWidth);
 
   React.useEffect(() => {
-    if (activePage && ref) {
+    if (activeTab && ref) {
       setTimeout(() => {
         ref.current
           ?.querySelector(`[data-active="true"]`)
           ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
-  }, [activePage, ref]);
+  }, [activeTab, ref]);
 
   useRegisterKeybindings(
     {
@@ -452,8 +452,8 @@ export function PageTabs(): JSX.Element {
       },
     },
     () => {
-      if (currActivePageRef.current) {
-        onPinTab(currActivePageRef.current);
+      if (currActiveTabRef.current) {
+        onPinTab(currActiveTabRef.current);
       }
     }
   );
@@ -468,17 +468,49 @@ export function PageTabs(): JSX.Element {
       },
     },
     () => {
-      if (currActivePageRef.current) {
-        onCloseTab(currActivePageRef.current);
+      if (currActiveTabRef.current) {
+        onCloseTab(currActiveTabRef.current);
       }
+    }
+  );
+
+  useRegisterKeybindings(
+    {
+      key: "logseq-tab-next",
+      label: "Tabs: Change to the next tab",
+      keybinding: {
+        mode: "global",
+        binding: "ctrl+tab",
+      },
+    },
+    () => {
+      let idx = getCurrentActiveIndex() ?? -1;
+      idx = (idx + 1) % tabs.length;
+      onChangeTab(tabs[idx]);
+    }
+  );
+
+  useRegisterKeybindings(
+    {
+      key: "logseq-tab-prev",
+      label: "Tabs: Change to the previous tab",
+      keybinding: {
+        mode: "global",
+        binding: "ctrl+shift+tab",
+      },
+    },
+    () => {
+      let idx = getCurrentActiveIndex() ?? -1;
+      idx = (idx - 1 + tabs.length) % tabs.length;
+      onChangeTab(tabs[idx]);
     }
   );
 
   return (
     <Tabs
       ref={ref}
-      onClickTab={onClickTab}
-      activePage={activePage}
+      onClickTab={onChangeTab}
+      activeTab={activeTab}
       tabs={tabs}
       onSwapTab={onSwapTab}
       onPinTab={onPinTab}
