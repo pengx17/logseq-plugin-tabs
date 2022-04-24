@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.10.0...v1.11.0) (2022-04-24)
+
+
+### Features
+
+* allow users to customize shortcuts ([041f048](https://github.com/pengx17/logseq-plugin-tabs/commit/041f048f5b9396a4ccfc12ce3c47baa3b0c5b2ba))
+
 # [1.10.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.9.2...v1.10.0) (2022-04-18)
 
 
