@@ -6,6 +6,7 @@ import produce from "immer";
 import React from "react";
 import { useDeepCompareEffect, useLatest } from "react-use";
 import "./PageTabs.css";
+import { keyBindings } from "./settings";
 import { ITabInfo } from "./types";
 import {
   delay,
@@ -293,13 +294,21 @@ const sortTabs = (tabs: ITabInfo[]) => {
 };
 
 const useRegisterKeybindings = (
-  opts: { key: string; keybinding: SimpleCommandKeybinding; label: string },
+  key: keyof typeof keyBindings,
   cb: () => void
 ) => {
   const cbRef = useEventCallback(cb);
 
   React.useEffect(() => {
-    logseq.App.registerCommandPalette(opts, cbRef);
+    const setting = {
+      key,
+      label: keyBindings[key].label,
+      keybinding: {
+        binding: logseq.settings?.[key] ?? keyBindings[key].binding,
+        mode: "global",
+      } as SimpleCommandKeybinding,
+    };
+    logseq.App.registerCommandPalette(setting, cbRef);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
@@ -442,69 +451,29 @@ export function PageTabs(): JSX.Element {
     }
   }, [activeTab, ref]);
 
-  useRegisterKeybindings(
-    {
-      key: "logseq-tab-toggle-pin",
-      label: "Tabs: Toggle Tab Pin Status",
-      keybinding: {
-        mode: "global",
-        binding: "mod+p",
-      },
-    },
-    () => {
-      if (currActiveTabRef.current) {
-        onPinTab(currActiveTabRef.current);
-      }
+  useRegisterKeybindings("tabs:toggle-pin", () => {
+    if (currActiveTabRef.current) {
+      onPinTab(currActiveTabRef.current);
     }
-  );
+  });
 
-  useRegisterKeybindings(
-    {
-      key: "logseq-tab-close",
-      label: "Tabs: Close Current Tab",
-      keybinding: {
-        mode: "global",
-        binding: "mod+shift+w",
-      },
-    },
-    () => {
-      if (currActiveTabRef.current) {
-        onCloseTab(currActiveTabRef.current);
-      }
+  useRegisterKeybindings("tabs:close", () => {
+    if (currActiveTabRef.current) {
+      onCloseTab(currActiveTabRef.current);
     }
-  );
+  });
 
-  useRegisterKeybindings(
-    {
-      key: "logseq-tab-next",
-      label: "Tabs: Change to the next tab",
-      keybinding: {
-        mode: "global",
-        binding: "ctrl+tab",
-      },
-    },
-    () => {
-      let idx = getCurrentActiveIndex() ?? -1;
-      idx = (idx + 1) % tabs.length;
-      onChangeTab(tabs[idx]);
-    }
-  );
+  useRegisterKeybindings("tabs:select-next", () => {
+    let idx = getCurrentActiveIndex() ?? -1;
+    idx = (idx + 1) % tabs.length;
+    onChangeTab(tabs[idx]);
+  });
 
-  useRegisterKeybindings(
-    {
-      key: "logseq-tab-prev",
-      label: "Tabs: Change to the previous tab",
-      keybinding: {
-        mode: "global",
-        binding: "ctrl+shift+tab",
-      },
-    },
-    () => {
-      let idx = getCurrentActiveIndex() ?? -1;
-      idx = (idx - 1 + tabs.length) % tabs.length;
-      onChangeTab(tabs[idx]);
-    }
-  );
+  useRegisterKeybindings("tabs:select-prev", () => {
+    let idx = getCurrentActiveIndex() ?? -1;
+    idx = (idx - 1 + tabs.length) % tabs.length;
+    onChangeTab(tabs[idx]);
+  });
 
   return (
     <Tabs

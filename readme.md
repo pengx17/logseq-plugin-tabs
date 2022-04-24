@@ -13,10 +13,14 @@ UX is mainly brought from modern browsers:
 - you can drag & drop to reorder tabs
 - tabs info will be persisted in your local storage, so that your tabs will recover even if you re-open the app
 
+![](./demo.gif)
+
 ## Keyboard shortcuts
 
 - Pin/unpin a tab: <kbd>CTRL</kbd> + <kbd>P</kbd> (macOS: <kbd>CMD</kbd> + <kbd>P</kbd>)
 - Close a tab: <kbd>SHIFT</kbd> + <kbd>CTRL</kbd> + <kbd>W</kbd> (macOS: <kbd>SHIFT</kbd> + <kbd>CMD</kbd> + <kbd>W</kbd>)
 - Change to next tab: <kbd>CTRL</kbd> + <kbd>TAB</kbd>
 
-![](./demo.gif)
+Hint: you can change them in the Settings. After change, you need to restart the app.
+
+![](./keybinding-settings.png)

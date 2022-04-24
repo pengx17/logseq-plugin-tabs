@@ -2,6 +2,7 @@ import "@logseq/libs";
 import React from "react";
 import * as ReactDOM from "react-dom/client";
 import "virtual:windi.css";
+import { settings } from "./settings";
 
 import App from "./App";
 import "./reset.css";
@@ -31,4 +32,4 @@ function main() {
   console.info(`#${pluginId}: MAIN DONE`);
 }
 
-logseq.ready(main).catch(console.error);
+logseq.useSettingsSchema(settings).ready(main).catch(console.error);
