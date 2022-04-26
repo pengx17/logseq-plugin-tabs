@@ -313,6 +313,27 @@ const useRegisterKeybindings = (
   }, []);
 };
 
+const useRegisterSelectNthTabKeybindings = (cb: (nth: number) => void) => {
+  const cbRef = useEventCallback(cb);
+
+  React.useEffect(() => {
+    for (let i = 1; i <= 9; i++) {
+      const setting = {
+        key: `tabs-select-nth-tab-${i}`,
+        label: `Select tab ${i}`,
+        keybinding: {
+          binding: `mod+${i}`,
+          mode: "non-editing",
+        } as SimpleCommandKeybinding,
+      };
+      logseq.App.registerCommandPalette(setting, () => {
+        cbRef(i);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useStoreTabs();
   const [activeTab, setActiveTab] = useActiveTab(tabs);
@@ -473,6 +494,12 @@ export function PageTabs(): JSX.Element {
     let idx = getCurrentActiveIndex() ?? -1;
     idx = (idx - 1 + tabs.length) % tabs.length;
     onChangeTab(tabs[idx]);
+  });
+
+  useRegisterSelectNthTabKeybindings(idx => {
+    if (idx > 0 && idx <= tabs.length) {
+      onChangeTab(tabs[idx - 1])
+    }
   });
 
   return (

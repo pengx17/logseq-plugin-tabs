@@ -20,6 +20,7 @@ UX is mainly brought from modern browsers:
 - Pin/unpin a tab: <kbd>CTRL</kbd> + <kbd>P</kbd> (macOS: <kbd>CMD</kbd> + <kbd>P</kbd>)
 - Close a tab: <kbd>SHIFT</kbd> + <kbd>CTRL</kbd> + <kbd>W</kbd> (macOS: <kbd>SHIFT</kbd> + <kbd>CMD</kbd> + <kbd>W</kbd>)
 - Change to next tab: <kbd>CTRL</kbd> + <kbd>TAB</kbd>
+- Change to nth tab: <kbd>CTRL</kbd> + <kbd>1</kbd> ~ <kbd>9</kbd> (this is not configurable yet)
 
 Hint: you can change them in the Settings. After change, you need to restart the app.
 
