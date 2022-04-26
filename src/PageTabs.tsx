@@ -300,15 +300,18 @@ const useRegisterKeybindings = (
   const cbRef = useEventCallback(cb);
 
   React.useEffect(() => {
-    const setting = {
-      key,
-      label: keyBindings[key].label,
-      keybinding: {
-        binding: logseq.settings?.[key] ?? keyBindings[key].binding,
-        mode: "global",
-      } as SimpleCommandKeybinding,
-    };
-    logseq.App.registerCommandPalette(setting, cbRef);
+    const userKeybinding: string = logseq.settings?.[key];
+    if (userKeybinding.trim() !== "") {
+      const setting = {
+        key,
+        label: keyBindings[key].label,
+        keybinding: {
+          binding: logseq.settings?.[key],
+          mode: "global",
+        } as SimpleCommandKeybinding,
+      };
+      logseq.App.registerCommandPalette(setting, cbRef);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
@@ -496,9 +499,9 @@ export function PageTabs(): JSX.Element {
     onChangeTab(tabs[idx]);
   });
 
-  useRegisterSelectNthTabKeybindings(idx => {
+  useRegisterSelectNthTabKeybindings((idx) => {
     if (idx > 0 && idx <= tabs.length) {
-      onChangeTab(tabs[idx - 1])
+      onChangeTab(tabs[idx - 1]);
     }
   });
 
