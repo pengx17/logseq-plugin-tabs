@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.11.0...v1.12.0) (2022-04-26)
+
+
+### Features
+
+* support selecting tabs with mod+1 ~ 9 ([5a939e5](https://github.com/pengx17/logseq-plugin-tabs/commit/5a939e53ad4d9520a06b54590b1ab7c40b14268b))
+
 # [1.11.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.10.0...v1.11.0) (2022-04-24)
 
 
