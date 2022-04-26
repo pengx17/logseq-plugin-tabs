@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.0...v1.12.1) (2022-04-26)
+
+
+### Bug Fixes
+
+* allow the user give empty keybinding to revoke ([5fcd334](https://github.com/pengx17/logseq-plugin-tabs/commit/5fcd334c8b14801a188e05c5d7dcb66f8ed76118))
+
 # [1.12.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.11.0...v1.12.0) (2022-04-26)
 
 
