@@ -385,13 +385,15 @@ export function PageTabs(): JSX.Element {
 
   const onNewTab = useEventCallback((t: ITabInfo | null, open = false) => {
     if (t) {
-      if (tabs.every((_t) => !isTabEqual(t, _t))) {
+      const previous = tabs.find((_t) => isTabEqual(t, _t));
+      if (!previous) {
         setTabs([...tabs, t]);
       } else {
         open = true;
       }
+      // Do not need to
       if (open) {
-        onChangeTab(t);
+        onChangeTab({ ...t, pinned: previous?.pinned });
       }
     }
   });
