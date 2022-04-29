@@ -65,24 +65,13 @@ export async function getSourcePage(
   }
   const page = await logseq.Editor.getPage(pageName);
 
+  // If the page contains alias and it has no property alias ...
   // @ts-expect-error
-  if (page && page.alias?.length > 0) {
-    const pages = await logseq.DB.datascriptQuery(`
-      [:find (pull ?p [*])
-      :where
-      [?a :block/name "${page?.name}"]
-      [?p :block/alias ?a]]
-    `);
-
+  if (page && page.alias?.length > 0 && !(page.properties?.alias.length > 0)) {
     // @ts-expect-error
-    const source = pages.flat().find((candidate) =>
-      candidate.properties?.alias?.some(
-        // @ts-expect-error
-        (alias) => alias.toLowerCase() === page?.name
-      )
-    );
-    if (source) {
-      return await logseq.Editor.getPage(source.name);
+    const pageId = page.alias[0]?.id;
+    if (pageId) {
+      return await logseq.Editor.getPage(pageId);
     }
   }
   return page;
