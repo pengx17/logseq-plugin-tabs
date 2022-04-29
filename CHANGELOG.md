@@ -1,3 +1,11 @@
+## [1.12.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.1...v1.12.2) (2022-04-29)
+
+
+### Bug Fixes
+
+* clean up get alias call ([22973fb](https://github.com/pengx17/logseq-plugin-tabs/commit/22973fbe5270112b31a60b90eace851f852b7696))
+* pinned tab issue ([b9d78ac](https://github.com/pengx17/logseq-plugin-tabs/commit/b9d78acd4fb1e1daf4ec29f0ce1f907bbd876fc8))
+
 ## [1.12.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.0...v1.12.1) (2022-04-26)
 
 
