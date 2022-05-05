@@ -337,6 +337,24 @@ const useRegisterSelectNthTabKeybindings = (cb: (nth: number) => void) => {
   }, []);
 };
 
+const useRegisterCloseAllButPins = (cb: () => void) => {
+  const cbRef = useEventCallback(cb);
+
+  React.useEffect(() => {
+    logseq.App.registerCommandPalette(
+      {
+        key: `tabs-close-all`,
+        label: `Close all tabs`,
+        // no keybindings yet
+      },
+      () => {
+        cbRef();
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+};
+
 export function PageTabs(): JSX.Element {
   const [tabs, setTabs] = useStoreTabs();
   const [activeTab, setActiveTab] = useActiveTab(tabs);
@@ -361,6 +379,13 @@ export function PageTabs(): JSX.Element {
       const newTab = newTabs[Math.min(newTabs.length - 1, idx)];
       setActiveTab(newTab);
     }
+  });
+
+  const onCloseAllTabs = useEventCallback(() => {
+    const pinnedTabs = tabs.filter((t) => t.pinned);
+    const newTabs = [...pinnedTabs];
+    setTabs(newTabs);
+    logseq.App.pushState("home");
   });
 
   const getCurrentActiveIndex = () => {
@@ -391,7 +416,6 @@ export function PageTabs(): JSX.Element {
       } else {
         open = true;
       }
-      // Do not need to
       if (open) {
         onChangeTab({ ...t, pinned: previous?.pinned });
       }
@@ -506,6 +530,8 @@ export function PageTabs(): JSX.Element {
       onChangeTab(tabs[idx - 1]);
     }
   });
+
+  useRegisterCloseAllButPins(onCloseAllTabs);
 
   return (
     <Tabs
