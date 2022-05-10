@@ -337,7 +337,7 @@ const useRegisterSelectNthTabKeybindings = (cb: (nth: number) => void) => {
   }, []);
 };
 
-const useRegisterCloseAllButPins = (cb: () => void) => {
+const useRegisterCloseAllButPins = (cb: (b: boolean) => void) => {
   const cbRef = useEventCallback(cb);
 
   React.useEffect(() => {
@@ -348,7 +348,21 @@ const useRegisterCloseAllButPins = (cb: () => void) => {
         // no keybindings yet
       },
       () => {
-        cbRef();
+        cbRef(false);
+      }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  React.useEffect(() => {
+    logseq.App.registerCommandPalette(
+      {
+        key: `tabs-close-all`,
+        label: `Close other tabs`,
+        // no keybindings yet
+      },
+      () => {
+        cbRef(true);
       }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -381,16 +395,18 @@ export function PageTabs(): JSX.Element {
     }
   });
 
-  const onCloseAllTabs = useEventCallback(() => {
-    const pinnedTabs = tabs.filter((t) => t.pinned);
-    const newTabs = [...pinnedTabs];
-    setTabs(newTabs);
-    logseq.App.pushState("home");
-  });
-
   const getCurrentActiveIndex = () => {
     return tabs.findIndex((ct) => isTabEqual(ct, currActiveTabRef.current));
   };
+
+  const onCloseAllTabs = useEventCallback((excludeActive: boolean) => {
+    const newTabs = tabs.filter(
+      (t) =>
+        t.pinned || (excludeActive && isTabEqual(t, currActiveTabRef.current))
+    );
+    setTabs(newTabs);
+    logseq.App.pushState("home");
+  });
 
   const onChangeTab = useEventCallback(async (t: ITabInfo) => {
     setActiveTab(t);
