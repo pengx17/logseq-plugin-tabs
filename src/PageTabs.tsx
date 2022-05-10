@@ -357,7 +357,7 @@ const useRegisterCloseAllButPins = (cb: (b: boolean) => void) => {
   React.useEffect(() => {
     logseq.App.registerCommandPalette(
       {
-        key: `tabs-close-all`,
+        key: `tabs-close-others`,
         label: `Close other tabs`,
         // no keybindings yet
       },
@@ -405,7 +405,9 @@ export function PageTabs(): JSX.Element {
         t.pinned || (excludeActive && isTabEqual(t, currActiveTabRef.current))
     );
     setTabs(newTabs);
-    logseq.App.pushState("home");
+    if (!excludeActive) {
+      logseq.App.pushState("home");
+    }
   });
 
   const onChangeTab = useEventCallback(async (t: ITabInfo) => {
