@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.3...v1.12.4) (2022-05-10)
+
+
+### Bug Fixes
+
+* add close other tabs command ([991deab](https://github.com/pengx17/logseq-plugin-tabs/commit/991deab91dac4851adf81956da453b39ff0e6270))
+
 ## [1.12.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.2...v1.12.3) (2022-05-05)
 
 
