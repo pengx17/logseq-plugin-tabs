@@ -160,12 +160,40 @@ export function useDebounceFn<T extends (...args: any[]) => any>(
   );
 }
 
+interface RouteState {
+  template: string;
+  path: string;
+}
+
+function useRouteState(): RouteState {
+  const [state, setState] = React.useState<RouteState>(
+    // @ts-expect-error getStateFromStore sames not working properly
+    top?.logseq.api.get_state_from_store("route-match")
+  );
+
+  React.useEffect(() => {
+    return logseq.App.onRouteChanged(setState);
+  }, []);
+
+  return state;
+}
+
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
+  const { template } = useRouteState();
+  const shouldShow =
+    show && ["/all-journals", "/page/:name", "/file/:path"].includes(template);
   const docRef = React.useRef(document.documentElement);
   const isHovering = useHoverDirty(docRef);
   React.useEffect(() => {
-    logseq.showMainUI({ autoFocus: false }); // always on
+    logseq.provideStyle({
+      key: "tabs--top-padding",
+      style: `
+      #main-content-container {
+        padding-top: ${shouldShow ? "64px" : ""};
+      }`,
+    });
 
+    logseq.showMainUI({ autoFocus: false });
     const headerEl = top!.document.querySelector(
       "#head.cp__header"
     )! as HTMLElement;
@@ -183,7 +211,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
         position: "fixed",
         left: `${leftOffset}px`,
         top: `${headerEl.offsetHeight + 2}px`,
-        height: show ? "28px" : "0px",
+        height: shouldShow ? "28px" : "0px",
         width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
         maxWidth: maxWidth + "px",
       });
@@ -194,7 +222,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     return () => {
       ob.disconnect();
     };
-  }, [show, tabsWidth, isHovering]);
+  }, [shouldShow, tabsWidth, isHovering]);
 }
 
 export const isMac = () => {
