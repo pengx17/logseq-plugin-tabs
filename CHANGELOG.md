@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.5...v1.12.6) (2022-05-17)
+
+
+### Bug Fixes
+
+* only show tabs when needed ([061796f](https://github.com/pengx17/logseq-plugin-tabs/commit/061796f57546142b79be6b1d24126b0a745d9ab4))
+
 ## [1.12.5](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.4...v1.12.5) (2022-05-10)
 
 
