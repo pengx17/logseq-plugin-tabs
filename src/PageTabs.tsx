@@ -58,12 +58,13 @@ interface TabsProps {
   activeTab: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
   onCloseTab: (tab: ITabInfo, force?: boolean) => void;
+  onCloseAllTabs: (excludeActive: boolean) => void;
   onPinTab: (tab: ITabInfo) => void;
   onSwapTab: (tab: ITabInfo, anotherTab: ITabInfo) => void;
 }
 
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
-  ({ activeTab, onClickTab, tabs, onCloseTab, onPinTab, onSwapTab }, ref) => {
+  ({ activeTab, onClickTab, tabs, onCloseTab, onCloseAllTabs, onPinTab, onSwapTab }, ref) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
 
     React.useEffect(() => {
@@ -83,7 +84,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         // @ts-expect-error ???
         ref={ref}
         data-dragging={draggingTab != null}
-        className={`flex items-center h-full px-1`}
+        className={`logseq-tab-wrapper flex items-center h-full px-1`}
         style={{ width: "fit-content" }}
         // By default middle button click will enter the horizontal scroll mode
         onMouseDown={(e) => {
@@ -154,6 +155,16 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             </div>
           );
         })}
+        <div
+              onClick={() => onCloseAllTabs(true)}
+              key={"Close All"}
+              draggable={false}
+              className="logseq-tab close-all group"
+            >
+              <span className="logseq-tab-title">
+                Close All
+              </span>
+            </div>
       </div>
     );
   }
@@ -560,6 +571,7 @@ export function PageTabs(): JSX.Element {
       onSwapTab={onSwapTab}
       onPinTab={onPinTab}
       onCloseTab={onCloseTab}
+      onCloseAllTabs={onCloseAllTabs}
     />
   );
 }
