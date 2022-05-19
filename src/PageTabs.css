@@ -54,3 +54,11 @@
   @apply light:(bg-cool-gray-400)
          dark:(bg-cool-gray-600);
 }
+
+.close-all {
+  opacity: 0;
+}
+
+.logseq-tab-wrapper:hover .close-all {
+ opacity: 1;
+}
