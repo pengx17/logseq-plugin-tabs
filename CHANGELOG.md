@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.6...v1.13.0) (2022-05-19)
+
+
+### Features
+
+* add button for closing all tabs ([3022ff5](https://github.com/pengx17/logseq-plugin-tabs/commit/3022ff581bb2b6e7fd38cfb840923fa1b0eae502))
+
 ## [1.12.6](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.5...v1.12.6) (2022-05-17)
 
 
