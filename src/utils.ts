@@ -181,7 +181,9 @@ function useRouteState(): RouteState {
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
   const { template } = useRouteState();
   const shouldShow =
-    show && ["/all-journals", "/page/:name", "/file/:path"].includes(template);
+    show &&
+    (!template ||
+      ["/", "/all-journals", "/page/:name", "/file/:path"].includes(template));
   const docRef = React.useRef(document.documentElement);
   const isHovering = useHoverDirty(docRef);
   React.useEffect(() => {
