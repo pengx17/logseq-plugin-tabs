@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.13.0...v1.13.1) (2022-05-19)
+
+
+### Bug Fixes
+
+* add home page to show tab routes ([0a73716](https://github.com/pengx17/logseq-plugin-tabs/commit/0a73716e5cd15ccb7f6d0bfcdceb8297c9c58af7))
+
 # [1.13.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.12.6...v1.13.0) (2022-05-19)
 
 
