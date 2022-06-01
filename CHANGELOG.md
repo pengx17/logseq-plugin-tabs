@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.13.1...v1.14.0) (2022-06-01)
+
+
+### Features
+
+* open tabs via search menu ([f65bd53](https://github.com/pengx17/logseq-plugin-tabs/commit/f65bd538f4f8939f9a371ba65419e83bbabda5fb))
+
 ## [1.13.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.13.0...v1.13.1) (2022-05-19)
 
 
