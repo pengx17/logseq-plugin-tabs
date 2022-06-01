@@ -64,7 +64,18 @@ interface TabsProps {
 }
 
 const Tabs = React.forwardRef<HTMLElement, TabsProps>(
-  ({ activeTab, onClickTab, tabs, onCloseTab, onCloseAllTabs, onPinTab, onSwapTab }, ref) => {
+  (
+    {
+      activeTab,
+      onClickTab,
+      tabs,
+      onCloseTab,
+      onCloseAllTabs,
+      onPinTab,
+      onSwapTab,
+    },
+    ref
+  ) => {
     const [draggingTab, setDraggingTab] = React.useState<ITabInfo>();
 
     React.useEffect(() => {
@@ -156,15 +167,13 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
           );
         })}
         <div
-              onClick={() => onCloseAllTabs(true)}
-              key={"Close All"}
-              draggable={false}
-              className="logseq-tab close-all group"
-            >
-              <span className="logseq-tab-title">
-                Close All
-              </span>
-            </div>
+          onClick={() => onCloseAllTabs(true)}
+          key={"Close All"}
+          draggable={false}
+          className="logseq-tab close-all group"
+        >
+          <span className="logseq-tab-title">Close All</span>
+        </div>
       </div>
     );
   }
@@ -172,7 +181,12 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
 
 function getPageRef(element: HTMLElement) {
   const el = element as HTMLAnchorElement;
-  return getBlockContentPageRef(el) ?? getSidebarPageRef(el);
+  return (
+    getBlockContentPageRef(el) ??
+    getSidebarPageRef(el) ??
+    getReferencesPageRef(el) ??
+    getSearchMenuPageRef(el)
+  );
 }
 
 function getBlockContentPageRef(element: HTMLElement) {
@@ -195,11 +209,46 @@ function getSidebarPageRef(element: HTMLElement) {
   }
 }
 
+function getReferencesPageRef(element: HTMLElement) {
+  const el = element as HTMLAnchorElement;
+  // if it is a page ref link in the references section
+  if (
+    el.tagName === "A" &&
+    el.closest(".references") &&
+    el.getAttribute("href")?.startsWith("#/page/")
+  ) {
+    return Array.from(element.childNodes)
+      .find((n) => n.nodeName === "#text")
+      ?.textContent?.trim();
+  }
+}
+
+function getClosestSearchMenuLink(element: HTMLElement): HTMLElement | null {
+  return element.closest(".search-results-wrap .menu-link");
+}
+
+function getSearchMenuPageRef(element: HTMLElement) {
+  const refEl = getClosestSearchMenuLink(element);
+  return refEl?.querySelector<HTMLElement>("[data-page-ref]")?.dataset.pageRef;
+}
+
+function getSearchMenuBlockRef(element: HTMLElement) {
+  const refEl = getClosestSearchMenuLink(element);
+  return refEl?.querySelector<HTMLElement>("[data-block-ref]")?.dataset
+    .blockRef;
+}
+
 function getBlockUUID(element: HTMLElement) {
   return (
     element.getAttribute("blockid") ??
-    element.querySelector("[blockid]")?.getAttribute("blockid")
+    element.querySelector("[blockid]")?.getAttribute("blockid") ??
+    getSearchMenuBlockRef(element)
   );
+}
+
+function stop(e: Event) {
+  e.stopPropagation();
+  e.stopImmediatePropagation();
 }
 
 /**
@@ -215,15 +264,13 @@ function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
       if (ctrlKey) {
         let newTab: ITabInfo | null = null;
         if (getPageRef(target)) {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
+          stop(e);
           const p = await getSourcePage(getPageRef(target));
           if (p) {
             newTab = p;
           }
         } else if (getBlockUUID(target)) {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
+          stop(e);
           const blockId = getBlockUUID(target);
           if (blockId) {
             const block = await logseq.Editor.getBlock(blockId);
