@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.14.0...v1.14.1) (2022-06-09)
+
+
+### Bug Fixes
+
+* add new tab via MOD+ENTER in search menu ([01d2a4a](https://github.com/pengx17/logseq-plugin-tabs/commit/01d2a4a1a7cd207c0b28b8953ad2a7fcea1ed511))
+
 # [1.14.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.13.1...v1.14.0) (2022-06-01)
 
 
