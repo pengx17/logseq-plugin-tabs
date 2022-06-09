@@ -255,6 +255,35 @@ function stop(e: Event) {
  * Captures user CTRL Click a page link.
  */
 function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
+  const handleAddTab = React.useCallback(
+    async (e: Event, target: HTMLElement) => {
+      let newTab: ITabInfo | null = null;
+      if (getPageRef(target)) {
+        stop(e);
+        const p = await getSourcePage(getPageRef(target));
+        if (p) {
+          newTab = p;
+        }
+      } else if (getBlockUUID(target)) {
+        stop(e);
+        const blockId = getBlockUUID(target);
+        if (blockId) {
+          const block = await logseq.Editor.getBlock(blockId);
+          if (block) {
+            const page = await logseq.Editor.getPage(block?.page.id);
+            if (page) {
+              newTab = { ...page, ...block };
+            }
+          }
+        }
+      }
+      if (newTab) {
+        cb(newTab, false);
+      }
+    },
+    [cb]
+  );
+
   React.useEffect(() => {
     const listener = async (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLElement;
@@ -262,36 +291,34 @@ function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
       const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
 
       if (ctrlKey) {
-        let newTab: ITabInfo | null = null;
-        if (getPageRef(target)) {
-          stop(e);
-          const p = await getSourcePage(getPageRef(target));
-          if (p) {
-            newTab = p;
-          }
-        } else if (getBlockUUID(target)) {
-          stop(e);
-          const blockId = getBlockUUID(target);
-          if (blockId) {
-            const block = await logseq.Editor.getBlock(blockId);
-            if (block) {
-              const page = await logseq.Editor.getPage(block?.page.id);
-              if (page) {
-                newTab = { ...page, ...block };
-              }
-            }
-          }
-        }
-        if (newTab) {
-          cb(newTab, e.shiftKey);
-        }
+        handleAddTab(e, target);
       }
     };
     top?.document.addEventListener("mousedown", listener, true);
     return () => {
       top?.document.removeEventListener("mousedown", listener, true);
     };
-  }, [cb]);
+  }, [handleAddTab]);
+
+  // Capture MOD+ENTER on search results
+  React.useEffect(() => {
+    const listener = async (e: KeyboardEvent) => {
+      const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
+      if (e.key === "Enter" && ctrlKey) {
+        // Find out chosen search item
+        const chosenMenuItem = top?.document.querySelector<HTMLElement>(
+          ".search-results-wrap .menu-link.chosen"
+        );
+        if (chosenMenuItem) {
+          handleAddTab(e, chosenMenuItem);
+        }
+      }
+    };
+    top?.document.addEventListener("keydown", listener, true);
+    return () => {
+      top?.document.removeEventListener("keydown", listener, true);
+    };
+  }, [handleAddTab]);
 }
 
 /**
