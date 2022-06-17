@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.14.1...v1.15.0) (2022-06-17)
+
+
+### Features
+
+* allow user custom tabs styles through custom.css ([61f23e8](https://github.com/pengx17/logseq-plugin-tabs/commit/61f23e80f41387f9f77d47d9145a7b510cb73def))
+
 ## [1.14.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.14.0...v1.14.1) (2022-06-09)
 
 
