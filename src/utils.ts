@@ -5,6 +5,7 @@ import isEqual from "fast-deep-equal";
 import { useHoverDirty, useMountedState } from "react-use";
 import { schemaVersion } from "../package.json";
 import { ITabInfo } from "./types";
+import { inheritCustomCSSSetting } from "./settings";
 
 export const useAppVisible = () => {
   const [visible, setVisible] = useState(logseq.isMainUIVisible);
@@ -178,8 +179,70 @@ function useRouteState(): RouteState {
   return state;
 }
 
+function useSettingValue<V>(key: string) {
+  const [value, setValue] = React.useState<V>(logseq.settings?.[key]);
+  React.useEffect(() => {
+    return logseq.onSettingsChanged(() => {
+      setValue(logseq.settings?.[key]);
+    });
+  });
+  return value;
+}
+
+export function useCustomCSS() {
+  const enabled = useSettingValue(inheritCustomCSSSetting.key);
+  React.useEffect(() => {
+    const rootHead = top?.document.head;
+    if (rootHead && enabled) {
+      const applyCustomCSS = () => {
+        let customCSSLink = document.getElementById(
+          "logseq-custom-theme-id"
+        ) as HTMLLinkElement;
+        if (!customCSSLink) {
+          customCSSLink = document.createElement("link");
+          customCSSLink.id = "logseq-custom-theme-id";
+          customCSSLink.rel = "stylesheet";
+          customCSSLink.media = "all";
+          document.head.append(customCSSLink);
+        }
+        const content = top?.document.querySelector<HTMLLinkElement>(
+          "#logseq-custom-theme-id"
+        )?.href;
+        if (content) {
+          customCSSLink.href = content;
+        }
+      };
+
+      const observer = new MutationObserver((mutations) => {
+        for (let mutation of mutations) {
+          for (let addedNode of mutation.addedNodes) {
+            if (
+              addedNode.nodeName === "LINK" &&
+              (addedNode as HTMLLinkElement).id === "logseq-custom-theme-id"
+            ) {
+              applyCustomCSS();
+              break;
+            }
+          }
+        }
+      });
+      observer.observe(rootHead, {
+        childList: true,
+      });
+      applyCustomCSS();
+      return () => {
+        observer.disconnect();
+      };
+    }
+    if (!enabled) {
+      document.getElementById("logseq-custom-theme-id")?.remove();
+    }
+  });
+}
+
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
   const { template } = useRouteState();
+  useCustomCSS();
   const shouldShow =
     show &&
     (!template ||

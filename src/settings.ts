@@ -19,12 +19,31 @@ export const keyBindings = {
   },
 };
 
-export const settings: SettingSchemaDesc[] = Object.entries(keyBindings).map(
+const keybindingSettings: SettingSchemaDesc[] = Object.entries(keyBindings).map(
   ([key, value]) => ({
     key,
     title: value.label,
     type: "string",
     default: value.binding,
-    description: "Keybinding: " + value.label + ". Default: `" + value.binding + "`. You need to restart the app for the changes to take effect.",
+    description:
+      "Keybinding: " +
+      value.label +
+      ". Default: `" +
+      value.binding +
+      "`. You need to restart the app for the changes to take effect.",
   })
 );
+
+export const inheritCustomCSSSetting: SettingSchemaDesc = {
+  key: "tabs:inherit-custom-css",
+  title: "Advanced: inherit custom.css styles",
+  default: false,
+  description:
+    "When turning this on, this plugin will also applies styles in custom.css. You need to restart the app for the changes to take effect.",
+  type: "boolean",
+};
+
+export const settings: SettingSchemaDesc[] = [
+  ...keybindingSettings,
+  inheritCustomCSSSetting,
+];
