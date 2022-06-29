@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.0...v1.15.1) (2022-06-29)
+
+
+### Bug Fixes
+
+* append the block id aggressively when opening a block ([0c898fa](https://github.com/pengx17/logseq-plugin-tabs/commit/0c898fa2d845d49335821569bb55cec1cdaf41a7))
+
 # [1.15.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.14.1...v1.15.0) (2022-06-17)
 
 
