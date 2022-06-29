@@ -214,8 +214,8 @@ export function useCustomCSS() {
       };
 
       const observer = new MutationObserver((mutations) => {
-        for (let mutation of mutations) {
-          for (let addedNode of mutation.addedNodes) {
+        for (const mutation of mutations) {
+          for (const addedNode of mutation.addedNodes) {
             if (
               addedNode.nodeName === "LINK" &&
               (addedNode as HTMLLinkElement).id === "logseq-custom-theme-id"

@@ -20,7 +20,11 @@ function main() {
   `);
 
   const root = ReactDOM.createRoot(document.getElementById("app")!);
-  root.render(<App />);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 
   console.info(`#${pluginId}: MAIN DONE`);
 }

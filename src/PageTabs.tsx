@@ -271,6 +271,12 @@ function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
           const block = await logseq.Editor.getBlock(blockId);
           if (block) {
             const page = await logseq.Editor.getPage(block?.page.id);
+            // also, write block id to the block properties if it is missing there ...
+            setTimeout(async () => {
+              if (!(await logseq.Editor.getBlockProperty(blockId, "id"))) {
+                logseq.Editor.upsertBlockProperty(blockId, "id", blockId);
+              }
+            }, 100);
             if (page) {
               newTab = { ...page, ...block };
             }
@@ -378,6 +384,24 @@ const sortTabs = (tabs: ITabInfo[]) => {
   });
 };
 
+// Avoid register issues during dev
+const registeredKeybindings = new Set<string>();
+
+function registerKeybinding(
+  setting: {
+    key: string;
+    label: string;
+    keybinding?: SimpleCommandKeybinding | undefined;
+  },
+  cb: () => void
+) {
+  if (registeredKeybindings.has(setting.key)) {
+    return;
+  }
+  registeredKeybindings.add(setting.key);
+  logseq.App.registerCommandPalette(setting, cb);
+}
+
 const useRegisterKeybindings = (
   key: keyof typeof keyBindings,
   cb: () => void
@@ -395,7 +419,7 @@ const useRegisterKeybindings = (
           mode: "global",
         } as SimpleCommandKeybinding,
       };
-      logseq.App.registerCommandPalette(setting, cbRef);
+      registerKeybinding(setting, cbRef);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -406,15 +430,16 @@ const useRegisterSelectNthTabKeybindings = (cb: (nth: number) => void) => {
 
   React.useEffect(() => {
     for (let i = 1; i <= 9; i++) {
+      const key = `tabs-select-nth-tab-${i}`;
       const setting = {
-        key: `tabs-select-nth-tab-${i}`,
+        key,
         label: `Select tab ${i}`,
         keybinding: {
           binding: `mod+${i}`,
           mode: "non-editing",
         } as SimpleCommandKeybinding,
       };
-      logseq.App.registerCommandPalette(setting, () => {
+      registerKeybinding(setting, () => {
         cbRef(i);
       });
     }
@@ -426,7 +451,7 @@ const useRegisterCloseAllButPins = (cb: (b: boolean) => void) => {
   const cbRef = useEventCallback(cb);
 
   React.useEffect(() => {
-    logseq.App.registerCommandPalette(
+    registerKeybinding(
       {
         key: `tabs-close-all`,
         label: `Close all tabs`,
@@ -440,7 +465,7 @@ const useRegisterCloseAllButPins = (cb: (b: boolean) => void) => {
   }, []);
 
   React.useEffect(() => {
-    logseq.App.registerCommandPalette(
+    registerKeybinding(
       {
         key: `tabs-close-others`,
         label: `Close other tabs`,
