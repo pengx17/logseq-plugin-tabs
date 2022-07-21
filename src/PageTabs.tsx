@@ -55,6 +55,7 @@ function isTabEqual(
 
 interface TabsProps {
   tabs: ITabInfo[];
+  showSingleTab: boolean;
   activeTab: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
   onCloseTab: (tab: ITabInfo, force?: boolean) => void;
@@ -69,6 +70,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       activeTab,
       onClickTab,
       tabs,
+      showSingleTab,
       onCloseTab,
       onCloseAllTabs,
       onPinTab,
@@ -89,7 +91,11 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
     }, []);
 
     const debouncedSwap = useDebounceFn(onSwapTab, 0);
+    const showTabs = showSingleTab || 0 < tabs.filter(tab => tab.pinned).length || 1 < tabs.length;
 
+    if (!showTabs) {
+      return null;
+    }
     return (
       <div
         // @ts-expect-error ???
@@ -485,6 +491,7 @@ export function PageTabs(): JSX.Element {
 
   const currActiveTabRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
+  const showSingleTab = logseq.settings["tabs:show-single-tab"];
 
   const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
     const idx = tabs.findIndex((t) => isTabEqual(t, tab));
@@ -667,6 +674,7 @@ export function PageTabs(): JSX.Element {
       onClickTab={onChangeTab}
       activeTab={activeTab}
       tabs={tabs}
+      showSingleTab={showSingleTab}
       onSwapTab={onSwapTab}
       onPinTab={onPinTab}
       onCloseTab={onCloseTab}
