@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.1...v1.15.2) (2022-07-21)
+
+
+### Bug Fixes
+
+* bump for new version ([de2dc87](https://github.com/pengx17/logseq-plugin-tabs/commit/de2dc87ae02a870fda00b427ce28957c914fb48a))
+
 ## [1.15.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.0...v1.15.1) (2022-06-29)
 
 
