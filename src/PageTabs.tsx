@@ -491,7 +491,7 @@ export function PageTabs(): JSX.Element {
 
   const currActiveTabRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
-  const showSingleTab = logseq.settings["tabs:show-single-tab"];
+  const showSingleTab = logseq.settings?.["tabs:show-single-tab"];
 
   const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
     const idx = tabs.findIndex((t) => isTabEqual(t, tab));
