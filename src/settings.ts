@@ -16,7 +16,7 @@ export const keyBindings = {
   "tabs:select-prev": {
     label: "Select Previous Tab",
     binding: "ctrl+shift+tab",
-  },
+  }
 };
 
 const keybindingSettings: SettingSchemaDesc[] = Object.entries(keyBindings).map(
@@ -43,7 +43,16 @@ export const inheritCustomCSSSetting: SettingSchemaDesc = {
   type: "boolean",
 };
 
+export const showSingleTab: SettingSchemaDesc = {
+  key: "tabs:show-single-tab",
+  title: "Show single tab?",
+  description: "When turned on the tab bar will only show if at least two tabs are open.",
+  type: "boolean",
+  default: true,
+}
+
 export const settings: SettingSchemaDesc[] = [
   ...keybindingSettings,
   inheritCustomCSSSetting,
+  showSingleTab,
 ];
