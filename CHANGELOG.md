@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.2...v1.15.3) (2022-08-01)
+
+
+### Bug Fixes
+
+* set toggle pin to empty binding by default since it conflicts with default ones ([dcf08e6](https://github.com/pengx17/logseq-plugin-tabs/commit/dcf08e6517bb1ca4d37e01e66a8dd011abd60b3b))
+
 ## [1.15.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.1...v1.15.2) (2022-07-21)
 
 
