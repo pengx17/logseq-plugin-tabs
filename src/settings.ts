@@ -3,7 +3,7 @@ import { SettingSchemaDesc } from "@logseq/libs/dist/LSPlugin.user";
 export const keyBindings = {
   "tabs:toggle-pin": {
     label: "Toggle Tab Pin Status",
-    binding: "mod+p",
+    binding: "",
   },
   "tabs:close": {
     label: "Close Tab",
