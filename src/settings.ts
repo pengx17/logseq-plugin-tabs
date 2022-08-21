@@ -51,8 +51,17 @@ export const showSingleTab: SettingSchemaDesc = {
   default: true,
 }
 
+export const closeButtonLeft: SettingSchemaDesc = {
+  key: "tabs:close-button-left",
+  title: "Close tab button on left side?",
+  description: "When turned on the close button will be on the left side of the tab.",
+  type: "boolean",
+  default: false,
+}
+
 export const settings: SettingSchemaDesc[] = [
   ...keybindingSettings,
   inheritCustomCSSSetting,
   showSingleTab,
+  closeButtonLeft
 ];

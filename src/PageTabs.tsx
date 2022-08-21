@@ -55,6 +55,7 @@ function isTabEqual(
 
 interface TabsProps {
   tabs: ITabInfo[];
+  closeButtonLeft: boolean;
   showSingleTab: boolean;
   activeTab: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
@@ -70,6 +71,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       activeTab,
       onClickTab,
       tabs,
+      closeButtonLeft,
       showSingleTab,
       onCloseTab,
       onCloseAllTabs,
@@ -153,6 +155,13 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               <div className="text-xs rounded border mr-1 px-1 inline light:bg-white dark:bg-dark">
                 {prefix}
               </div>
+              {closeButtonLeft && tab.pinned ? (
+                <span>📌</span>
+              ) : closeButtonLeft && (
+                <button className="close-button" onClick={onClose}>
+                  <CloseSVG />
+                </button>
+              )}
               <span className="logseq-tab-title">
                 {tab.originalName ?? tab.name}{" "}
                 {isBlock(tab) && (
@@ -162,9 +171,9 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
                   </span>
                 )}
               </span>
-              {tab.pinned ? (
+              {!closeButtonLeft && tab.pinned ? (
                 <span>📌</span>
-              ) : (
+              ) : !closeButtonLeft && (
                 <button className="close-button" onClick={onClose}>
                   <CloseSVG />
                 </button>
@@ -491,7 +500,8 @@ export function PageTabs(): JSX.Element {
 
   const currActiveTabRef = React.useRef<ITabInfo | null>();
   const latestTabsRef = useLatest(tabs);
-  const showSingleTab = logseq.settings?.["tabs:show-single-tab"];
+  const showSingleTab = !!logseq.settings?.["tabs:show-single-tab"];
+  const closeButtonLeft = !!logseq.settings?.["tabs:close-button-left"];
 
   const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
     const idx = tabs.findIndex((t) => isTabEqual(t, tab));
@@ -674,6 +684,7 @@ export function PageTabs(): JSX.Element {
       onClickTab={onChangeTab}
       activeTab={activeTab}
       tabs={tabs}
+      closeButtonLeft={closeButtonLeft}
       showSingleTab={showSingleTab}
       onSwapTab={onSwapTab}
       onPinTab={onPinTab}
