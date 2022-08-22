@@ -299,10 +299,11 @@ function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
   React.useEffect(() => {
     const listener = async (e: MouseEvent) => {
       const target = e.composedPath()[0] as HTMLElement;
-      // If CtrlKey is pressed, always open a new tab
+      // If CtrlKey is pressed or Middle Mouse Button is clicked, always open a new tab
       const ctrlKey = isMac() ? e.metaKey : e.ctrlKey;
+      const middleMouseClick = e.button == 1;
 
-      if (ctrlKey) {
+      if (ctrlKey || middleMouseClick) {
         handleAddTab(e, target);
       }
     };
