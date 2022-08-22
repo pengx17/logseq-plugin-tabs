@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.16.0...v1.17.0) (2022-08-22)
+
+
+### Features
+
+* option to have tab closeButton on left ([183a494](https://github.com/pengx17/logseq-plugin-tabs/commit/183a4946a62e7cb39c0e764bba44aa6d703359ac))
+
 # [1.16.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.3...v1.16.0) (2022-08-22)
 
 
