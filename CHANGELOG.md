@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.3...v1.16.0) (2022-08-22)
+
+
+### Features
+
+* middleMouseClick opens new tab ([2cf6de5](https://github.com/pengx17/logseq-plugin-tabs/commit/2cf6de57c9bc53dca098c84ed581d31c2868c61a))
+
 ## [1.15.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.15.2...v1.15.3) (2022-08-01)
 
 
