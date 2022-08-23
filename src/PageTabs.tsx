@@ -143,7 +143,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
                 // TODO: show the same context menu like right-clicking the title?
                 console.log("Not implemented yet");
               }}
-              key={tab.uuid ?? tab.name}
+              key={[tab.originalName, tab.uuid].join('-')}
               data-active={isActive}
               data-pinned={tab.pinned}
               data-dragging={draggingTab === tab}
