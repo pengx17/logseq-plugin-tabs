@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.0...v1.17.1) (2022-08-23)
+
+
+### Bug Fixes
+
+* key collision issue ([a1ec22a](https://github.com/pengx17/logseq-plugin-tabs/commit/a1ec22a0787243c44fe0d82b07c4735fdd839dca))
+
 # [1.17.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.16.0...v1.17.0) (2022-08-22)
 
 
