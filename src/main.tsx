@@ -26,6 +26,11 @@ function main() {
     </React.StrictMode>
   );
 
+  parent.document.body.classList.add('is-plugin-tabs-enabled');
+  logseq.beforeunload(async () => {
+    parent.document.body.classList.remove('is-plugin-tabs-enabled');
+  });
+
   console.info(`#${pluginId}: MAIN DONE`);
 }
 
