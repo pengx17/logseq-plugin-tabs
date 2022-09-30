@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.1...v1.17.2) (2022-09-30)
+
+
+### Bug Fixes
+
+* bump version for Add BODY class on load ([6334bc3](https://github.com/pengx17/logseq-plugin-tabs/commit/6334bc3583bc4e2d95482939d9a9fd7bf670a54b))
+
 ## [1.17.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.0...v1.17.1) (2022-08-23)
 
 
