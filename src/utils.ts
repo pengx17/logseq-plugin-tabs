@@ -279,6 +279,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
         height: shouldShow ? "28px" : "0px",
         width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
         maxWidth: maxWidth + "px",
+        webkitAppRegion: "drag",
       });
     };
     listener();
