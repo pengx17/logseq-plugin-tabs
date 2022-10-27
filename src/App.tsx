@@ -7,7 +7,7 @@ function App(): JSX.Element {
   usePreventFocus();
   return (
     <main
-      style={{ width: "100vw", height: "100vh" }}
+      style={{ width: "100vw", height: "100vh", webkitAppRegion: "drag" }}
       className={`${themeMode}`}
     >
       <PageTabs />
