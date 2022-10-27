@@ -1,3 +1,10 @@
+## [1.17.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.2...v1.17.3) (2022-10-27)
+
+
+### Bug Fixes
+
+* graggable area ([909ee6a](https://github.com/pengx17/logseq-plugin-tabs/commit/909ee6ac2cb128517da0a378ba9c25b286c4b2ca))
+
 ## [1.17.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.1...v1.17.2) (2022-09-30)
 
 
