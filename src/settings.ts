@@ -59,9 +59,18 @@ export const closeButtonLeft: SettingSchemaDesc = {
   default: false,
 }
 
+export const hideCloseAllButton: SettingSchemaDesc = {
+  key: "tabs:hide-close-all-button",
+  title: "Hide 'Close All' button?",
+  description: "When turned on 'Close All' button at the end of tabs list will be hidden.",
+  type: "boolean",
+  default: false,
+}
+
 export const settings: SettingSchemaDesc[] = [
   ...keybindingSettings,
   inheritCustomCSSSetting,
   showSingleTab,
-  closeButtonLeft
+  closeButtonLeft,
+  hideCloseAllButton
 ];
