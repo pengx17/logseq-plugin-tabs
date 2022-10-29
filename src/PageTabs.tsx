@@ -56,6 +56,7 @@ function isTabEqual(
 interface TabsProps {
   tabs: ITabInfo[];
   closeButtonLeft: boolean;
+  hideCloseAllButton: boolean;
   showSingleTab: boolean;
   activeTab: ITabInfo | null | undefined;
   onClickTab: (tab: ITabInfo) => void;
@@ -72,6 +73,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
       onClickTab,
       tabs,
       closeButtonLeft,
+      hideCloseAllButton,
       showSingleTab,
       onCloseTab,
       onCloseAllTabs,
@@ -181,6 +183,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             </div>
           );
         })}
+        {!hideCloseAllButton && (
         <div
           onClick={() => onCloseAllTabs(true)}
           key={"Close All"}
@@ -189,6 +192,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
         >
           <span className="logseq-tab-title">Close All</span>
         </div>
+        )}
       </div>
     );
   }
@@ -503,6 +507,7 @@ export function PageTabs(): JSX.Element {
   const latestTabsRef = useLatest(tabs);
   const showSingleTab = !!logseq.settings?.["tabs:show-single-tab"];
   const closeButtonLeft = !!logseq.settings?.["tabs:close-button-left"];
+  const hideCloseAllButton = !!logseq.settings?.["tabs:hide-close-all-button"];
 
   const onCloseTab = useEventCallback((tab: ITabInfo, force?: boolean) => {
     const idx = tabs.findIndex((t) => isTabEqual(t, tab));
@@ -686,6 +691,7 @@ export function PageTabs(): JSX.Element {
       activeTab={activeTab}
       tabs={tabs}
       closeButtonLeft={closeButtonLeft}
+      hideCloseAllButton={hideCloseAllButton}
       showSingleTab={showSingleTab}
       onSwapTab={onSwapTab}
       onPinTab={onPinTab}
