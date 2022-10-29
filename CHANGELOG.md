@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.3...v1.18.0) (2022-10-29)
+
+
+### Features
+
+* option to hide "Close All" button ([5e93c8a](https://github.com/pengx17/logseq-plugin-tabs/commit/5e93c8af0ce5ba2c950fac695cdff6312db64ac7))
+
 ## [1.17.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.2...v1.17.3) (2022-10-27)
 
 
