@@ -1,3 +1,10 @@
+## [1.18.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.0...v1.18.1) (2022-11-02)
+
+
+### Bug Fixes
+
+* issue on opening non-existed tab ([6bfb0a6](https://github.com/pengx17/logseq-plugin-tabs/commit/6bfb0a6de56cc6a4f7abebb19dd5d6439a9712c7))
+
 # [1.18.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.17.3...v1.18.0) (2022-10-29)
 
 
