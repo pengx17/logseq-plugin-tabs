@@ -166,8 +166,8 @@ interface RouteState {
   path: string;
 }
 
-function useRouteState(): RouteState {
-  const [state, setState] = React.useState<RouteState>(
+function useRouteState() {
+  const [state, setState] = React.useState<RouteState | null>(
     // @ts-expect-error getStateFromStore sames not working properly
     top?.logseq.api.get_state_from_store("route-match")
   );
@@ -241,12 +241,14 @@ export function useCustomCSS() {
 }
 
 export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
-  const { template } = useRouteState();
+  const route = useRouteState();
   useCustomCSS();
   const shouldShow =
     show &&
-    (!template ||
-      ["/", "/all-journals", "/page/:name", "/file/:path"].includes(template));
+    (!route?.template ||
+      ["/", "/all-journals", "/page/:name", "/file/:path"].includes(
+        route?.template
+      ));
   const docRef = React.useRef(document.documentElement);
   const isHovering = useHoverDirty(docRef);
   React.useEffect(() => {
@@ -265,7 +267,13 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
 
     const mainContainer = top!.document.querySelector(
       "#main-content-container"
-    )! as HTMLElement;
+    ) as HTMLElement;
+
+    if (!mainContainer) {
+      return;
+    }
+
+    console.log(mainContainer);
 
     const listener = () => {
       const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
@@ -279,7 +287,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
         height: shouldShow ? "28px" : "0px",
         width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
         maxWidth: maxWidth + "px",
-        webkitAppRegion: "drag",
+        WebkitAppRegion: "drag",
       });
     };
     listener();
