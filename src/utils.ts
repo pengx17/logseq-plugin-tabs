@@ -273,8 +273,6 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
       return;
     }
 
-    console.log(mainContainer);
-
     const listener = () => {
       const { left: leftOffset, width } = mainContainer.getBoundingClientRect();
       const maxWidth = width - 10;
@@ -287,6 +285,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
         height: shouldShow ? "28px" : "0px",
         width: isHovering ? "100%" : tabsWidth + "px", // 10 is the width of the scrollbar
         maxWidth: maxWidth + "px",
+        // @ts-ignore
         WebkitAppRegion: "drag",
       });
     };

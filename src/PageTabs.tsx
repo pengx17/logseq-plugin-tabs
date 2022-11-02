@@ -95,7 +95,10 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
     }, []);
 
     const debouncedSwap = useDebounceFn(onSwapTab, 0);
-    const showTabs = showSingleTab || 0 < tabs.filter(tab => tab.pinned).length || 1 < tabs.length;
+    const showTabs =
+      showSingleTab ||
+      0 < tabs.filter((tab) => tab.pinned).length ||
+      1 < tabs.length;
 
     if (!showTabs) {
       return null;
@@ -129,6 +132,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
           const onDragStart: React.DragEventHandler = (e) => {
             e.dataTransfer.effectAllowed = "move";
             setDraggingTab(tab);
+            e.stopPropagation();
           };
           const prefix = tab.properties?.icon
             ? tab.properties?.icon
@@ -145,7 +149,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
                 // TODO: show the same context menu like right-clicking the title?
                 console.log("Not implemented yet");
               }}
-              key={[tab.originalName, tab.uuid].join('-')}
+              key={[tab.originalName, tab.uuid].join("-")}
               data-active={isActive}
               data-pinned={tab.pinned}
               data-dragging={draggingTab === tab}
@@ -159,10 +163,12 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               </div>
               {closeButtonLeft && tab.pinned ? (
                 <span>📌</span>
-              ) : closeButtonLeft && (
-                <button className="close-button" onClick={onClose}>
-                  <CloseSVG />
-                </button>
+              ) : (
+                closeButtonLeft && (
+                  <button className="close-button" onClick={onClose}>
+                    <CloseSVG />
+                  </button>
+                )
               )}
               <span className="logseq-tab-title">
                 {tab.originalName ?? tab.name}{" "}
@@ -175,23 +181,25 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
               </span>
               {!closeButtonLeft && tab.pinned ? (
                 <span>📌</span>
-              ) : !closeButtonLeft && (
-                <button className="close-button" onClick={onClose}>
-                  <CloseSVG />
-                </button>
+              ) : (
+                !closeButtonLeft && (
+                  <button className="close-button" onClick={onClose}>
+                    <CloseSVG />
+                  </button>
+                )
               )}
             </div>
           );
         })}
         {!hideCloseAllButton && (
-        <div
-          onClick={() => onCloseAllTabs(true)}
-          key={"Close All"}
-          draggable={false}
-          className="logseq-tab close-all group"
-        >
-          <span className="logseq-tab-title">Close All</span>
-        </div>
+          <div
+            onClick={() => onCloseAllTabs(true)}
+            key={"Close All"}
+            draggable={false}
+            className="logseq-tab close-all group"
+          >
+            <span className="logseq-tab-title">Close All</span>
+          </div>
         )}
       </div>
     );
@@ -544,6 +552,21 @@ export function PageTabs(): JSX.Element {
   });
 
   const onChangeTab = useEventCallback(async (t: ITabInfo) => {
+    if (isBlock(t) && t.uuid) {
+      const block = await logseq.Editor.getBlock(t.uuid);
+      if (!block) {
+        logseq.UI.showMsg(
+          `The target block ${t.content} is not found!`,
+          "error",
+          {
+            timeout: 1000,
+          }
+        );
+        // force close it if it's not found
+        onCloseTab(t, true);
+        return;
+      }
+    }
     setActiveTab(t);
     const idx = getCurrentActiveIndex();
     // remember current page's scroll position
