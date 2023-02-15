@@ -212,7 +212,8 @@ function getPageRef(element: HTMLElement) {
     getBlockContentPageRef(el) ??
     getSidebarPageRef(el) ??
     getReferencesPageRef(el) ??
-    getSearchMenuPageRef(el)
+    getSearchMenuPageRef(el) ??
+    getFavoritesOrRecentPageRef(el)
   );
 }
 
@@ -250,6 +251,17 @@ function getReferencesPageRef(element: HTMLElement) {
   }
 }
 
+function getFavoritesOrRecentPageRef(element: HTMLElement) {
+  const el = element as HTMLAnchorElement;
+  if (el.tagName === "SPAN" && el.classList.contains("page-title")) {
+    const parentListItem = el.closest("li");
+
+    if (parentListItem?.classList.contains("favorite-item") || parentListItem?.classList.contains("recent-item")) {
+      return parentListItem.getAttribute("data-ref");
+    }
+  }
+}
+
 function getClosestSearchMenuLink(element: HTMLElement): HTMLElement | null {
   return element.closest(".search-results-wrap .menu-link");
 }
@@ -276,6 +288,7 @@ function getBlockUUID(element: HTMLElement) {
 function stop(e: Event) {
   e.stopPropagation();
   e.stopImmediatePropagation();
+  e.preventDefault(); // prevent scrolling from middle mouse button click
 }
 
 /**
