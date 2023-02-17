@@ -1,5 +1,7 @@
 # Logseq Plugin Tabs
 
+### 🔔 Looking for maintainers! 🔔
+
 [![Github All Releases](https://img.shields.io/github/downloads/pengx17/logseq-plugin-tabs/total.svg)](https://github.com/pengx17/logseq-plugin-tabs/releases)
 
 A plugin that let's you to manage your working pages with tabs.
