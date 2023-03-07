@@ -255,7 +255,7 @@ export function useAdaptMainUIStyle(show: boolean, tabsWidth?: number | null) {
     logseq.provideStyle({
       key: "tabs--top-padding",
       style: `
-      #main-content-container {
+      .cp__sidebar-main-content {
         padding-top: ${shouldShow ? "64px" : ""};
       }`,
     });
