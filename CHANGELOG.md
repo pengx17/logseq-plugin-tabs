@@ -1,3 +1,10 @@
+## [1.18.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.2...v1.18.3) (2023-03-07)
+
+
+### Bug Fixes
+
+* Page padding ([5197e28](https://github.com/pengx17/logseq-plugin-tabs/commit/5197e28ec3fff91ff0ba961e94be973ee45e38e5))
+
 ## [1.18.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.1...v1.18.2) (2023-02-17)
 
 
