@@ -59,7 +59,7 @@ interface TabsProps {
   hideCloseAllButton: boolean;
   showSingleTab: boolean;
   activeTab: ITabInfo | null | undefined;
-  onClickTab: (tab: ITabInfo) => void;
+  onClickTab: (tab: ITabInfo, isShiftKeyPressed:boolean) => void;
   onCloseTab: (tab: ITabInfo, force?: boolean) => void;
   onCloseAllTabs: (excludeActive: boolean) => void;
   onPinTab: (tab: ITabInfo) => void;
@@ -141,7 +141,7 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             : "P";
           return (
             <div
-              onClick={() => onClickTab(tab)}
+              onClick={(e) => onClickTab(tab, e.shiftKey)}
               onAuxClick={onClose}
               onDoubleClick={() => onPinTab(tab)}
               onContextMenu={(e) => {
@@ -564,6 +564,33 @@ export function PageTabs(): JSX.Element {
     }
   });
 
+  const onTabClick = useEventCallback(async (t: ITabInfo, isShiftKeyPressed:boolean) => {
+    if (isBlock(t) && t.uuid) {
+      const block = await logseq.Editor.getBlock(t.uuid);
+      if (!block) {
+        logseq.UI.showMsg(
+          `The target block ${t.content} is not found!`,
+          "error",
+          {
+            timeout: 1000,
+          }
+        );
+        // force close it if it's not found
+        onCloseTab(t, true);
+        return;
+      }
+    }
+
+    if (isShiftKeyPressed) 
+    {
+      logseq.Editor.openInRightSidebar(t.uuid as string);
+    }
+    else 
+    {
+      onChangeTab(t);
+    }
+  });
+
   const onChangeTab = useEventCallback(async (t: ITabInfo) => {
     if (isBlock(t) && t.uuid) {
       const block = await logseq.Editor.getBlock(t.uuid);
@@ -723,7 +750,7 @@ export function PageTabs(): JSX.Element {
   return (
     <Tabs
       ref={ref}
-      onClickTab={onChangeTab}
+      onClickTab={onTabClick}
       activeTab={activeTab}
       tabs={tabs}
       closeButtonLeft={closeButtonLeft}
