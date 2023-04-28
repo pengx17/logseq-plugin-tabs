@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.3...v1.19.0) (2023-04-28)
+
+
+### Features
+
+* bump version for new features ([e00b972](https://github.com/pengx17/logseq-plugin-tabs/commit/e00b972fcd15dcf9226ed640d49528e7d1968f0a))
+
 ## [1.18.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.2...v1.18.3) (2023-03-07)
 
 
