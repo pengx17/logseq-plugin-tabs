@@ -41,6 +41,10 @@ function isTabEqual(
   function isEqual(a?: string, b?: string) {
     return a != null && b != null && a.toLowerCase() === b.toLowerCase();
   }
+  if (tab?.name == getJournalsString() && !anotherTab?.name) {
+    return true;
+  }
+
   if (tab?.page || anotherTab?.page) {
     return isEqual(tab?.uuid, anotherTab?.uuid);
   }
@@ -59,7 +63,7 @@ interface TabsProps {
   hideCloseAllButton: boolean;
   showSingleTab: boolean;
   activeTab: ITabInfo | null | undefined;
-  onClickTab: (tab: ITabInfo) => void;
+  onClickTab: (tab: ITabInfo, isShiftKeyPressed: boolean) => void;
   onCloseTab: (tab: ITabInfo, force?: boolean) => void;
   onCloseAllTabs: (excludeActive: boolean) => void;
   onPinTab: (tab: ITabInfo) => void;
@@ -138,10 +142,12 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
             ? tab.properties?.icon
             : isBlock(tab)
             ? "B"
+            : tab.uuid == undefined // is Journal
+            ? "J"
             : "P";
           return (
             <div
-              onClick={() => onClickTab(tab)}
+              onClick={(e) => onClickTab(tab, e.shiftKey)}
               onAuxClick={onClose}
               onDoubleClick={() => onPinTab(tab)}
               onContextMenu={(e) => {
@@ -285,6 +291,26 @@ function getBlockUUID(element: HTMLElement) {
   );
 }
 
+function getJournalsString(): string {
+  let storedJournalsString = localStorage.getItem("journalsString");
+  if (!storedJournalsString) {
+    let readJournalsString = top?.document.querySelector(".journals-nav")?.firstChild?.lastChild?.textContent;
+    if (readJournalsString) {
+      storedJournalsString = readJournalsString;
+    } else {
+      storedJournalsString = "Journals" // fallback
+    }
+
+    localStorage.setItem("journalsString", storedJournalsString);
+  }
+
+  return storedJournalsString;
+}
+
+function getIsJournalLink(element: HTMLElement) {
+  return null !== element.closest(".journals-nav");
+}
+
 function stop(e: Event) {
   e.stopPropagation();
   e.stopImmediatePropagation();
@@ -322,7 +348,10 @@ function useCaptureAddTabAction(cb: (e: ITabInfo, open: boolean) => void) {
             }
           }
         }
+      } else if (getIsJournalLink(target)) {
+        newTab = { name: getJournalsString(), uuid: undefined }
       }
+
       if (newTab) {
         cb(newTab, false);
       }
@@ -377,19 +406,22 @@ export function useActiveTab(tabs: ITabInfo[]) {
   const setActivePage = useEventCallback(async () => {
     const p = await logseq.Editor.getCurrentPage();
     let tab: ITabInfo | null = null;
-    if (p) {
-      tab = tabs.find((t) => isTabEqual(t, p)) ?? null;
-      if (!tab) {
+    tab = tabs.find((t) => isTabEqual(t, p)) ?? null;
+    if (!tab) {
+      if (p) {
         tab = await logseq.Editor.getPage(
           p.name ?? (p as BlockEntity)?.page.id
         );
+      } else {
+        tab = { name: getJournalsString(), uuid: undefined }
       }
-      tab = { ...tab, ...p };
-      if (tab.scrollTop) {
-        mainContainerScroll({ top: tab.scrollTop });
-      }
-      pageRef.current = tab;
     }
+
+    tab = { ...tab, ...p };
+    if (tab.scrollTop) {
+      mainContainerScroll({ top: tab.scrollTop });
+    }
+    pageRef.current = tab;
     setPage(tab);
   });
   React.useEffect(() => {
@@ -564,6 +596,31 @@ export function PageTabs(): JSX.Element {
     }
   });
 
+  const onTabClick = useEventCallback(async (t: ITabInfo, isShiftKeyPressed: boolean) => {
+    if (isBlock(t) && t.uuid) {
+      const block = await logseq.Editor.getBlock(t.uuid);
+      if (!block) {
+        logseq.UI.showMsg(
+          `The target block ${t.content} is not found!`,
+          "error",
+          {
+            timeout: 1000,
+          }
+        );
+        // force close it if it's not found
+        onCloseTab(t, true);
+        return;
+      }
+    }
+
+    if (isShiftKeyPressed) {
+      // TODO shift click on Journals tab is not displayed in right side bar (working when shift clicked on Journals link in left sidebar)
+      logseq.Editor.openInRightSidebar(t.uuid as string);
+    } else {
+      onChangeTab(t);
+    }
+  });
+
   const onChangeTab = useEventCallback(async (t: ITabInfo) => {
     if (isBlock(t) && t.uuid) {
       const block = await logseq.Editor.getBlock(t.uuid);
@@ -580,6 +637,11 @@ export function PageTabs(): JSX.Element {
         return;
       }
     }
+
+    if (t.name == getJournalsString() && !t.uuid) {
+      logseq.App.pushState("all-journals");
+    }
+
     setActiveTab(t);
     const idx = getCurrentActiveIndex();
     // remember current page's scroll position
@@ -723,7 +785,7 @@ export function PageTabs(): JSX.Element {
   return (
     <Tabs
       ref={ref}
-      onClickTab={onChangeTab}
+      onClickTab={onTabClick}
       activeTab={activeTab}
       tabs={tabs}
       closeButtonLeft={closeButtonLeft}
