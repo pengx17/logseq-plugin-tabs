@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.0...v1.19.1) (2023-05-05)
+
+
+### Bug Fixes
+
+* a bug where a tab for a block is converted to a Journals tab when activating it ([d94921a](https://github.com/pengx17/logseq-plugin-tabs/commit/d94921af8a61251e58fab3eca1d0fba9d9686eff))
+
 # [1.19.0](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.18.3...v1.19.0) (2023-04-28)
 
 
