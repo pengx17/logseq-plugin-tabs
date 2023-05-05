@@ -41,7 +41,7 @@ function isTabEqual(
   function isEqual(a?: string, b?: string) {
     return a != null && b != null && a.toLowerCase() === b.toLowerCase();
   }
-  if (tab?.name == getJournalsString() && !anotherTab?.name) {
+  if (tab?.name == getJournalsString() && !anotherTab?.uuid) { // not possible to check 'anotherTab.name == undefined' for Journal, because a tab for a block also has no name
     return true;
   }
 
