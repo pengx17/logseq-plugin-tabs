@@ -10,8 +10,6 @@ function App(): JSX.Element {
       style={{
         width: "100vw",
         height: "100vh",
-        // @ts-ignore
-        WebkitAppRegion: "drag",
       }}
       className={`${themeMode}`}
     >
