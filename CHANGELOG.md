@@ -1,3 +1,10 @@
+## [1.19.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.1...v1.19.2) (2023-09-27)
+
+
+### Bug Fixes
+
+* tabs unclickable occasionally ([6fab7a1](https://github.com/pengx17/logseq-plugin-tabs/commit/6fab7a15dcdd551d422449cc2ae861e4056ab19a))
+
 ## [1.19.1](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.0...v1.19.1) (2023-05-05)
 
 
