@@ -11,7 +11,7 @@ function App(): JSX.Element {
         width: "100vw",
         height: "100vh",
       }}
-      className={`${themeMode}`}
+      className={`${themeMode} drag-region`}
     >
       <PageTabs />
     </main>
