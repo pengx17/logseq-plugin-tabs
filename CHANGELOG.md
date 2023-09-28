@@ -1,3 +1,10 @@
+## [1.19.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.2...v1.19.3) (2023-09-28)
+
+
+### Bug Fixes
+
+* support draggable app region for the awesome UI plugin ([7472067](https://github.com/pengx17/logseq-plugin-tabs/commit/74720672ae192b68e230d2f6ec452e1b68d47a66))
+
 ## [1.19.2](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.1...v1.19.2) (2023-09-27)
 
 
