@@ -293,8 +293,15 @@ function getBlockUUID(element: HTMLElement) {
 
 function getJournalsString(): string {
   let storedJournalsString = localStorage.getItem("journalsString");
+
   if (!storedJournalsString) {
-    let readJournalsString = top?.document.querySelector(".journals-nav")?.firstChild?.lastChild?.textContent;
+    let readJournalsString = top?.document.querySelector(".journals-nav")?.firstChild?.children[1]?.textContent;
+
+    // Be careful if we read "gj": it's likely because we selected the wrong element.
+    if (readJournalsString && readJournalsString == "gj") {
+      readJournalsString = top?.document.querySelector(".journals-nav")?.firstChild?.lastChild?.textContent;
+    }
+
     if (readJournalsString) {
       storedJournalsString = readJournalsString;
     } else {
