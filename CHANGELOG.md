@@ -1,3 +1,10 @@
+## [1.19.4](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.3...v1.19.4) (2024-01-03)
+
+
+### Bug Fixes
+
+* name of the Journals tab ([d495c6b](https://github.com/pengx17/logseq-plugin-tabs/commit/d495c6b325a8c48a71f2fc2feda0cde17e2ad2b4))
+
 ## [1.19.3](https://github.com/pengx17/logseq-plugin-tabs/compare/v1.19.2...v1.19.3) (2023-09-28)
 
 
