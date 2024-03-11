@@ -27,3 +27,8 @@ UX is mainly brought from modern browsers:
 Hint: you can change them in the Settings. After change, you need to restart the app.
 
 ![](./keybinding-settings.png)
+
+## Contributing
+
+- Please follow [Logseq's guidelines](https://github.com/logseq/logseq/blob/master/CONTRIBUTING.md) for contributions and Pull Requests.
+- See the [logseq-plugin-template-react readme](https://github.com/pengx17/logseq-plugin-template-react?tab=readme-ov-file#how-to-get-started) for steps on how to build and test this plugin.
