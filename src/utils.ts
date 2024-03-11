@@ -341,7 +341,7 @@ export const useScrollWidth = <T extends HTMLElement>(
 };
 
 export const mainContainerScroll = (scrollOptions: ScrollToOptions) => {
-  top?.document.querySelector("#main-container")?.scrollTo(scrollOptions);
+  top?.document.querySelector("#main-content-container")?.scrollTo(scrollOptions);
 };
 
 export const isBlock = (t: ITabInfo) => {

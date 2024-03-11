@@ -148,10 +148,11 @@ const Tabs = React.forwardRef<HTMLElement, TabsProps>(
           return (
             <div
               onClick={(e) => onClickTab(tab, e.shiftKey)}
-              onAuxClick={onClose}
               onDoubleClick={() => onPinTab(tab)}
               onContextMenu={(e) => {
                 e.preventDefault();
+                console.log(e);
+                // onAuxClick={/*onClose*/}
                 // TODO: show the same context menu like right-clicking the title?
                 console.log("Not implemented yet");
               }}
@@ -426,7 +427,7 @@ export function useActiveTab(tabs: ITabInfo[]) {
 
     tab = { ...tab, ...p };
     if (tab.scrollTop) {
-      mainContainerScroll({ top: tab.scrollTop });
+      setTimeout(() => { mainContainerScroll({ top: tab.scrollTop }); }, 250);
     }
     pageRef.current = tab;
     setPage(tab);
@@ -654,7 +655,7 @@ export function PageTabs(): JSX.Element {
     // remember current page's scroll position
     if (idx !== -1) {
       const scrollTop =
-        top?.document.querySelector("#main-container")?.scrollTop;
+        top?.document.querySelector("#main-content-container")?.scrollTop;
 
       setTabs(
         produce(tabs, (draft) => {
